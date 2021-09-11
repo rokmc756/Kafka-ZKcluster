@@ -1,0 +1,113 @@
+- name: Create kafka group
+  group: name=kafka state=present
+
+- name: Create kafka user
+  user: name=kafka group=kafka
+
+- set_fact:
+    kafka_package_name: kafka_{{ kafka.scala_version }}-{{ kafka.version }}.tgz
+    kafka_application_path: "{{ kafka.installation_path }}/kafka_{{ kafka.scala_version }}-{{ kafka.version }}"
+
+- name: Check kafka package
+  stat: path={{ package_download_path }}/{{ kafka_package_name }}
+  register: kafka_package_exists
+
+- name: Download kafka tar if not downloaded
+  get_url: url={{ kafka.download_mirror }}/{{ kafka.version }}/{{ kafka_package_name }} dest={{ package_download_path }}
+  when: not kafka_package_exists.stat.exists
+
+- name: Unarchive kafka package
+  unarchive: src={{ package_download_path }}/{{ kafka_package_name }} dest={{ kafka.installation_path }} copy=no
+
+- name: Delete package downloaded if needed
+  file: path={{ package_download_path }}/{{ kafka_package_name }} state=absent
+  when: force_cleanup is defined and force_cleanup == "True"
+
+- name: Check if any version of kafka is already linked
+  stat: path={{ kafka.installation_path }}/kafka
+  register: kafka_symlink_created
+
+- debug: msg={{ kafka_symlink_created }}
+
+- name: Repoint symlink to new Kafka version
+  become_user: root
+  file:
+    src: "{{ kafka.installation_path }}/kafka_{{ kafka.scala_version }}-{{ kafka.version }}"
+    dest: "{{ kafka.installation_path }}/kafka"
+    state: link
+  when: not kafka_symlink_created.stat.exists
+
+- name: Set kafka data dir
+  file: path={{ kafka.configuration.data_dir }} state=directory owner=kafka group=kafka
+
+- name: Set kafka loggers dir
+  file: path={{ kafka.configuration.log_path }} state=directory owner=kafka group=kafka
+
+- name: Set kafka log topic dirs
+  file: path={{ kafka.configuration.log_dirs }} state=directory owner=kafka group=kafka
+
+- name: Set kafka configuration
+  template: src=templates/kafka.configuration.j2 dest={{ kafka_application_path }}/config/server.properties force=yes
+  notify: restart kafka
+
+- name: Copy systemd configuration of kafka into /etc/systemd/system
+  template: src=kafka.systemd.j2 dest=/etc/systemd/system/kafka.service owner=root group=root mode=644 force=yes
+
+
+####################################################################################################
+# Install internal zookeeper
+####################################################################################################
+- name: Create zookeeper group
+  group: name=zookeeper state=present
+  when: ( zookeeper.use_internal_zookeeper )
+
+- name: Create zookeeper user
+  user: name=zookeeper group=zookeeper
+  when: ( zookeeper.use_internal_zookeeper )
+
+- name: Set zookeeper data dir
+  file: path={{ zookeeper.configuration.data_dir }} state=directory owner=zookeeper group=zookeeper
+  when: ( zookeeper.use_internal_zookeeper )
+
+- name: Set zookeeper log dir
+  file: path={{ zookeeper.configuration.log_path }} state=directory owner=zookeeper group=zookeeper
+  when: ( zookeeper.use_internal_zookeeper )
+
+- name: Set zookeeper data dir
+  file: path={{ zookeeper.configuration.data_dir }} state=directory owner=zookeeper group=zookeeper
+  when: ( zookeeper.use_internal_zookeeper )
+
+- name: Set zookeeper myid configuration
+  template: src=templates/zookeeper.myid.j2 dest={{ zookeeper.configuration.data_dir }}/myid force=yes
+  notify: restart zookeeper
+  when: ( zookeeper.use_internal_zookeeper )
+
+- name: Replace data directory of zookeeper properties
+  replace:
+    path: "{{ zookeeper.installation_path }}/kafka/config/zookeeper.properties"
+    regexp: "^(.*)dataDir=(.*)$"
+    replace: "dataDir={{ zookeeper.configuration.data_dir }}"
+    backup: yes
+  when: ( zookeeper.use_internal_zookeeper )
+
+- name: Copy systemd configuration of zookeeper into /etc/systemd/system
+  template: src=zookeeper.systemd.j2 dest=/etc/systemd/system/zookeeper.service owner=root group=root mode=644 force=yes
+  when: ( zookeeper.use_internal_zookeeper )
+
+# Start services for zookeeper and kafka
+- name: Reload and start systemd service of kafka
+  become: true
+  systemd:
+    daemon_reload: yes
+    name: kafka
+    enabled: yes
+    state: started
+
+- name: Reload and start systemd service of zookeeper
+  become: true
+  systemd:
+    daemon_reload: yes
+    name: zookeeper
+    enabled: yes
+    state: started
+  when: ( zookeeper.use_internal_zookeeper )

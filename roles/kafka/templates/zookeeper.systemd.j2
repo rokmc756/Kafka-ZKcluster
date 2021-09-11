@@ -1,0 +1,16 @@
+[Unit]
+Description=Zookeeper
+Before=
+After=network.target
+
+[Service]
+Type=forking
+User=zookeeper
+Environment=ZOO_LOG_DIR={{ zookeeper.configuration.log_path }} CHDIR={{ zookeeper.configuration.data_dir }}
+ExecStart=/bin/bash -c "/usr/local/kafka/bin/zookeeper-server-start.sh /usr/local/kafka/config/zookeeper.properties >> {{ zookeeper.configuration.log_path }}/zookeeper.log 2>&1 &"
+ExecStop=/bin/bash -c "/usr/local/kafka/bin/zookeeper-server-stop.sh"
+Restart=on-abort
+
+[Install]
+WantedBy=multi-user.target
+# Environment=ZOO_LOG_DIR={{ zookeeper.configuration.log_path }} JAVA_HOME={{ java.installation_path }} CHDIR={{ zookeeper.configuration.data_dir }}

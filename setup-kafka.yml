@@ -1,0 +1,7 @@
+---
+- hosts: kafka_servers
+  become: true
+  roles:
+    - firewall
+    - java
+    - kafka
