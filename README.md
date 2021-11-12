@@ -131,6 +131,7 @@ $ vi setup-kafka.yml
     - firewall
     - java
     - kafka
+    - zookeeper
 ~~~
 
 $ make install
