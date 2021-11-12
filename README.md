@@ -2,7 +2,7 @@
 Kafka-ZKCluster is ansible playbook to deploy Apache Kafka that is a distributed event streaming platform using publish-subscribe topics.
 
 # Kafka-ZKCluster Architecutre
-![Test Image 4](https://github.com/rokmc756/kafka-zkcluster/blob/main/roles/kafka/files/kafka-zookeeper-architecture.png 112)
+![alt text](https://github.com/rokmc756/kafka-zkcluster/blob/main/roles/kafka/files/kafka-zookeeper-architecture.png)
 
 
 # Where is Kafka-ZKCluster from how is it changed?
