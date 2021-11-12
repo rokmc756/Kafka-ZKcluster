@@ -51,7 +51,7 @@ $ cd kafka-zkcluster
 $ vi Makefile
 ~~~
 ANSIBLE_HOST_PASS="changeme"  # It should be changed with password of user in ansible host that gpfarmer would be run.
-ANSIBLE_TARGET_PASS="changeme"  # # It should be changed with password of sudo user in managed nodes that gpdb would be installed.
+ANSIBLE_TARGET_PASS="changeme"  # It should be changed with password of sudo user in managed nodes that gpdb would be installed.
 ~~~
 
 $ vi ansible-hosts
