@@ -43,7 +43,7 @@ $ sudo yum install sshpass
 ## Prepareing OS
 Configure Yum / Local & EPEL Repostiory
 
-# Download / configure / run gpfarmer
+# How to install and confgiure Kafaka-ZKCluster
 $ git clone https://github.com/rokmc756/kafka-zkcluster
 
 $ cd kafka-zkcluster
@@ -135,6 +135,8 @@ $ vi setup-kafka.yml
 
 $ make install
 
+# How to uninstall Kafaka-ZKCluster
+$ make uninstall
 
 # Planning
 Adding playbook to install and confgiure kafka / zookeeper monitor
