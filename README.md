@@ -7,9 +7,9 @@ Zookeeper it self is allowing multiple clients to perform simultaneous reads and
 
 
 # Where is Kafka-ZKCluster from how is it changed?
-Kafka-ZKCluster has been developing based on gpdb-ansible project - https://github.com/andreasscherbaum/gpdb-ansible. Andreas! Thanks for sharing it.
-Since it only provide install GPDB on a single host GPFarmer support multiple hosts and many extensions to deploy them and support two
-binary type, rpm and bin..
+Kafka-ZKCluster has been developing based on https://github.com/sleighzy/ansible-kafka. Sleighzy! Thanks for sharing it.
+Since it provide Oracle JDK install I've changed it to OpenJDK in grobal variables in a group_vars directory.
+Additionally systemd configuration files for zookeeper and kafka has been changed as well.
 
 # Supported Kafka and Zookeeper version
 Kafka
@@ -74,120 +74,66 @@ sdw6-02 zk_id=2 ansible_ssh_host=192.168.0.62
 sdw6-03 zk_id=3 ansible_ssh_host=192.168.0.63
 
 
-$ vi role/gpdb/var/main.yml
+$ vi group_vars/kafka_servers
 ~~~
----
-google_cloud: false
-
-# number of Greenplum Database segments
-gpdb_number_segments: 2               # Change how many instances want to run
-gpdb_mirror_enable: true              # Enable if mirror instances is run or not
-gpdb_spread_mirrors: "-S"             # Enable if spread mirror is used or not
-
-# if you change the version, Ansible will attempt a database upgrade
-# greenplum-db-4.3.9.0-build-1-RHEL5-x86_64.zip
-gpdb_major_version: 5
-gpdb_minor_version: 21.0
-gpdb_build_version:
-gpdb_rhel_name: 'rhel7'
-gpdb_binary_type: 'zip'
-
-smdw_hostname: "smdw6"
-seg_serialized_install: False
-gpdb_initdb_single: False
-gpdb_initdb_with_standby: True
-gpdb_network_range: "192.168.0.0"
-gpdb_admin_password: "changeme"
-~~~
-
-$ vi role/gpcc/var/main.yml
-~~~
----
-# greenplum-cc-web-6.0.0-beta.5-rhel7_x86_64.zip
-# greenplum-cc-web-4.7.0-LINUX-x86_64.zip
-gpcc_major_version: 4
-gpcc_minor_version: 7.0
-gpcc_build_version:
-gpcc_rhel_name: LINUX-
-# gpcc_rhel_name: rhel7_
-gpdb_initdb_only_single: false
-gpdb_initdb_with_standby: true
-gpcc_network_range: "192.168.0.0/24"
-gpcc_subnet_range: 24
-gpcc_password: "changeme"
-~~~
-
-$ vi role/gptext/var/main.yml
-~~~
----
-gptext_major_version: 3
-gptext_minor_version: 3.0
-gptext_patch_version:
-gptext_build_version:
-gptext_gpdb_version:
-gptext_java_version: 1.8.0
-gptext_rhel_name: rhel6
-gptext_database_name: testdb
-gptext_all_hosts: "mdw6 smdw6 sdw6-1 sdw6-2 sdw6-3"   # The number of all nodes should be 3, 5 or 7
+package_download_path : "/tmp"
+kafka:
+  version: 2.8.1
+  scala_version: 2.13
+  installation_path: /usr/local
+  download_mirror: http://apache.rediris.es/kafka
+  configuration:
+    port: 9092
+    data_dir: /var/lib/kafka
+    log_dirs: /tmp/lib/kafka/kafka-logs
+    log_path: /var/log/kafka
+    network_threads: 3
+    disk_threads: 8
+    num_partitions: 3
+    so_snd_buff_bytes: 102400
+    so_rcv_buff_bytes: 102400
+    so_request_max_bytes: 104857600
+    data_dir_recovery_threads: 1
+    log_retention_hours: 24
+    log_retention_bytes: 1073741824
+    log_segment_bytes: 1073741824
+    log_retention_check_interval: 300000
+    log_cleaner_enable: false
+    zk_connection_timeout: 60000
+zookeeper:
+  version: 3.7.0
+  installation_path: /usr/local
+  download_mirror: http://apache.rediris.es/zookeeper
+  configuration:
+    port: 2181
+    log_path: /var/log/zookeeper
+    data_dir: /var/lib/zookeeper
+    tick_time: 2000
+    init_limit: 5
+    sync_limit: 2
+  use_internal_zookeeper: 1
+java:
+  version: 8u101
+  installation_path: /usr/java/jdk1.8.0_101
+  build: b13
+  platform: x86_64
+  priority: 100
+  download_mirror: http://download.oracle.com/otn-pub/java/jdk
+  download_cookies: "Cookie: gpw_e24=http%3A%2F%2Fwww.oracle.com%2F; oraclelicense=accept-securebackup-cookie"
 ~~~
 
-$ vi role/madlib/var/main.yml
+$ vi setup-kafka.yml
 ~~~
----
-madlib_major_version: 1
-madlib_minor_version: 15
-madlib_patch_version: 1
-madlib_gpdb_version: gp5
-madlib_rhel_version: rhel7
-madlib_database_name: testdb
-madlib_mdw_hostname: mdw6
-# madlib-1.15.1-gp5-rhel6-x86_64.tar.gz
-# madlib-1.15.1-gp4.3orca-rhel5-x86_64.tar.gz
-~~~
-
-$ vi role/postgis/var/mail.yml
-~~~
----
-postgis_prefix_major_version:
-postgis_major_version: 2
-postgis_minor_version: 1
-postgis_patch_version: .5+pivotal.2
-postgis_gpdb_version: gp5
-postgis_rhel_version: rhel7
-postgis_database_name: testdb
-# postgis-2.1.5+pivotal.2-gp5-rhel7-x86_64.gppkgg
-# postgis-ossv2.0.3_pv2.0.2_gpdb4.3orca-rhel5-x86_64.gppkg
-~~~
-
-$ vi install-host.yml
-~~~
----
-- hosts: all
-  become: yes
+- hosts: kafka_servers
+  become: true
   roles:
-    - gpdb
-    - gptext
-
-- hosts: mdw6
-  become: yes
-  roles:
-    - gpcc
-    - madlib
-    - postgis
+    - firewall
+    - java
+    - kafka
 ~~~
-
-$ make init
 
 $ make install
 
 
 # Planning
-Adding playbook to remove GPDB and other extensions
-
-Adding playbook to update GPDB and other extensions
-
-Converting Makefile.init from original project.
-
-Documenting how to make OS template for GPDB and GPFarmer.
-
-
+Adding playbook to install and confgiure kafka / zookeeper monitor
