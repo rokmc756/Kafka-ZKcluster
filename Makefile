@@ -54,7 +54,7 @@ install: role-update setup-kafka.yml
 	# ansible-playbook -i ansible-hosts --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -u ${USERNAME} setup-kafka.yml --tags="install"
 
 uninstall: role-update setup-kafka.yml
-	ansible-playbook -i ansible-hosts --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -u ${USERNAME} setup-kafka.yml --tags="uninstall"
+	ansible-playbook -i ansible-hosts --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -u ${USERNAME} uninstall-kafka-zkcluster.yml
 
 upgrade: role-update setup-kafka.yml
 	ansible-playbook -i ansible-hosts --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -u ${USERNAME} setup-kafka.yml --tags="upgrade"

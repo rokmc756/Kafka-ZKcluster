@@ -1,0 +1,34 @@
+# Uninstall Kafka Zookeeper Cluster for RHEL or CentOS 7.x
+#
+
+- hosts: all
+  become: true
+  become_user: root
+  gather_facts: true
+  tasks:
+    - name: Stop Kakfa and Zookeeper
+      systemd:
+        name: "{{ item }}"
+        state: stopped
+      with_items:
+        - "kafka"
+        - "zookeeper"
+
+    - name: Delete files and directories for Kafak and Zookeeper
+      file:
+        path: "{{ item }}"
+        state: absent
+      register: files_directories_deleted
+      with_items:
+        - "/usr/local/kafka"
+        - "/usr/local/kafka_{{ kafka.scala_version }}-{{ kafka.version }}"
+        - "/usr/local/apache-zookeeper"
+        - "/usr/local/apache-zookeeper-{{ zookeeper.version }}"
+        - "/var/log/zookeeper"
+        - "/var/lib/zookeeper"
+        - "/var/lib/kafka"
+        - "/var/log/kafka"
+        - "/tmp/lib/kafka/kafka-logs"
+
+    - debug:
+        var: files_directories_deleted

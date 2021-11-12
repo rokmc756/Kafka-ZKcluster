@@ -1,6 +1,6 @@
 package_download_path : "/tmp"
 kafka:
-  version: 2.8.0
+  version: 2.8.1
   scala_version: 2.13
   installation_path: /usr/local
   download_mirror: http://apache.rediris.es/kafka
