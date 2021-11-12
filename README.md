@@ -72,6 +72,7 @@ sdw6-03 kafka_broker_id=3 ansible_ssh_host=192.168.0.63
 sdw6-01 zk_id=1 ansible_ssh_host=192.168.0.61
 sdw6-02 zk_id=2 ansible_ssh_host=192.168.0.62
 sdw6-03 zk_id=3 ansible_ssh_host=192.168.0.63
+~~~
 
 
 $ vi group_vars/kafka_servers
