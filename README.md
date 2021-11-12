@@ -1,16 +1,11 @@
-# What is Kafak-ZKCluster?
-Kafka-ZKCluster is ansible playbook to deploy 
+# What is Kafka-ZKCluster?
+Kafka-ZKCluster is ansible playbook to deploy Apache Kafka that is a distributed event streaming platform using publish-subscribe topics.
 
-Greenplum Database conveniently on Baremetal, Virtual Machines and Cloud Infrastructure.
-It provide also many extensions to install such GPText, madlib, GPCC, postgis as well. The main purpose of this project is actually
-very simple. Because i have many jobs to install different kind of GPDB versions and reproduce issues & test features  as a support
-engineer. I just want to spend less time for it.
+# Kafka-ZKCluster Architecutre
 
-If you are working with GPDB such as Developer, Administrator, Field Engineer or Data Scientist you could also use it very useful with
-saving time.
 
-# Where is Kafak-ZKCluster from how is it changed?
-GPFarmer has been developing based on gpdb-ansible project - https://github.com/andreasscherbaum/gpdb-ansible. Andreas! Thanks for sharing it.
+# Where is Kafka-ZKCluster from how is it changed?
+Kafka-ZKCluster has been developing based on gpdb-ansible project - https://github.com/andreasscherbaum/gpdb-ansible. Andreas! Thanks for sharing it.
 Since it only provide install GPDB on a single host GPFarmer support multiple hosts and many extensions to deploy them and support two
 binary type, rpm and bin..
 
@@ -22,7 +17,7 @@ Zookeeper
 Virtual Machines
 Cloud Infrastructure
 Baremetal
-RHEL and CentOS 5/6/7
+RHEL / CentOS and Rocky 5/6/7
 
 
 # Prerequisite
