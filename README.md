@@ -123,23 +123,37 @@ java:
   download_cookies: "Cookie: gpw_e24=http%3A%2F%2Fwww.oracle.com%2F; oraclelicense=accept-securebackup-cookie"
 ~~~
 
-$ vi setup-kafka.yml
+# How to install Kafaka-ZKCluster
 ~~~
+$ vi install-kafka.yml
+---
 - hosts: kafka_servers
+  remote_user: root
   become: true
   roles:
     - firewall
     - java
     - kafka
     - zookeeper
-~~~
 
 $ make install
+~~~
 
 # How to uninstall Kafaka-ZKCluster
-$ make uninstall
+$ vi uninstall-kafka.yml
+~~~
+---
+- hosts: kafka_servers
+  remote_user: root
+  become: true
+  roles:
+    - zookeeper
+    - kafka
+    - java
+    - firewall
 
-$ ansible-playbook -i ansible-hosts setup-kafka.yml
+$ make uninstall
+~~~
 
 # Planning
 Adding playbook to install and confgiure kafka / zookeeper monitor
