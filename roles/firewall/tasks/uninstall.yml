@@ -1,4 +1,4 @@
-- name: Set Firewalld Port Policy
+- name: Disable Firewalld Port Policy
   firewalld: port={{ item }}/tcp permanent=true state=disabled immediate=yes
   with_items:
     - "{{ kafka.configuration.port }}"
