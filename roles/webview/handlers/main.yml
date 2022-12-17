@@ -1,0 +1,8 @@
+- name: start kafka-webview
+  service: name=kafka-webview state=started enabled=yes
+
+- name: stop kafka-webview
+  service: name=kafka-webview state=stopped enabled=yes
+
+- name: restart kafka-webview
+  service: name=kafka-webview state=restarted enabled=yes

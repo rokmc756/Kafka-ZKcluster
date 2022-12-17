@@ -1,8 +1,13 @@
 ---
 - hosts: kafka_servers
+  remote_user: root
   become: true
   roles:
     - firewall
     - java
     - kafka
     - zookeeper
+
+#- hosts: sdw6-01
+#  roles:
+#    - webview

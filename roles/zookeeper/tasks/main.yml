@@ -1,111 +1,13 @@
-- name: create zookeeper group
-  group: name=zookeeper state=present
-  tags:
-    - zookeeper
-    - zk_setup
+---
+# for now fail if it's not a Red Hat based system
+- name: Check OS ( GPDB )
+  fail: msg="Not a Red Hat based system!"
+  when: ansible_os_family != 'RedHat' or ansible_os_family != 'CentOS'  ansible_os_family != 'Rocky'
 
-- name: create zookeeper user
-  user: name=zookeeper group=zookeeper
-  tags:
-    - zookeeper
-    - zk_setup
+- name: Install ZooKeeper
+  include: install.yml
+  tags: install
 
-# origianal zk_package_name: zookeeper-{{ zookeeper.version }}.tar.gz
-- set_fact:
-    zk_package_name: apache-zookeeper-{{ zookeeper.version }}.tar.gz
-    zk_application_path: "{{ zookeeper.installation_path }}/apache-zookeeper-{{ zookeeper.version }}"
-  tags:
-    - zookeeper
-    - zk_installation
-
-- name: check zookeeper package
-  stat: path={{ package_download_path }}/{{ zk_package_name }}
-  register: zk_package_exists
-  tags:
-    - zookeeper
-    - zk_installation
-
-- name: download zookeeper tar if not downloaded
-  get_url: url={{ zookeeper.download_mirror }}/zookeeper-{{ zookeeper.version }}/{{ zk_package_name }} dest={{ package_download_path }}
-  when: not zk_package_exists.stat.exists
-  tags:
-    - zookeeper
-    - zk_installation
-
-- name: unarchive zookeeper package
-  unarchive: src={{ package_download_path }}/{{ zk_package_name }} dest={{ zookeeper.installation_path }} copy=no
-  tags:
-    - zookeeper
-    - zk_installation
-
-- name: delete package downloaded if needed
-  file: path={{ package_download_path }}/{{ zk_package_name }} state=absent
-  when: force_cleanup is defined and force_cleanup == "True"
-  tags:
-    - zookeeper
-    - zk_installation
-
-- name: check if any version of zookeeper is already linked
-  stat: path={{ zookeeper.installation_path }}/apache-zookeeper
-  register: zk_symlink_created
-  tags:
-    - zookeeper
-    - zk_installation
-
-- debug: msg={{ zk_symlink_created }}
-
-- name: Repoint symlink to new zookeeper version
-  become_user: root
-  file:
-    dest: "{{ zookeeper.installation_path }}/apache-zookeeper"
-    src: "{{ zookeeper.installation_path }}/apache-zookeeper-{{ zookeeper.version }}"
-    state: link
-  when: not zk_symlink_created.stat.exists
-  tags:
-    - zookeeper
-    - zk_installation
-
-- name: set zookeeper data dir
-  file: path={{ zookeeper.configuration.data_dir }} state=directory owner=zookeeper group=zookeeper
-  tags: 
-    - zookeeper
-    - zk_configuration
-
-- name: set zookeeper log dir
-  file: path={{ zookeeper.configuration.log_path }} state=directory owner=zookeeper group=zookeeper
-  tags:
-    - zookeeper
-    - zk_configuration
-
-- name: set zookeeper configuration
-  template: src=templates/zookeeper.configuration.j2 dest={{ zk_application_path }}/conf/zoo.cfg force=yes
-  notify: restart zookeeper
-  tags:
-    - zookeeper
-    - zk_configuration
-
-- name: set zookeeper data dir
-  file: path={{ zookeeper.configuration.data_dir }} state=directory owner=zookeeper group=zookeeper
-  tags:
-    - zookeeper
-    - zk_configuration
-
-- name: set zookeeper myid configuration
-  template: src=templates/zookeeper.myid.j2 dest={{ zookeeper.configuration.data_dir }}/myid force=yes
-  notify: restart zookeeper
-  tags:
-    - zookeeper
-    - zk_configuration
-
-- name: start zookeeper
-  template: src=zookeeper.systemd.j2 dest=/etc/systemd/system/zookeeper.service owner=root group=root mode=644 force=yes
-  tags:
-    - zookeeper
-    - zk_startup
-
-- name: reload systemd daemon
-  shell: "systemctl daemon-reload"
-  notify: restart zookeeper
-  tags:
-    - zookeeper
-    - zk_startup
+- name: Uninstall Zookeeper
+  include: uninstall.yml
+  tags: uninstall

@@ -1,0 +1,12 @@
+- hosts: sdw6-01
+  become: true
+  tasks:
+    - name: Copy kafka-webview-{{ webview.version }} file
+      copy:
+        src: "/Users/pivotal/Downloads/vmware-postgres-12.8.0.el7.x86_64.zip"
+        dest: "/home/jomoon/vmware-postgres-12.8.0.el7.x86_64.zip"
+        mode: 0644
+        flat: yes
+
+    - name: unzip test archive
+      unarchive: src=/home/jomoon/vmware-postgres-12.8.0.el7.x86_64.zip dest=/tmp remote_src=yes

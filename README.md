@@ -139,5 +139,7 @@ $ make install
 # How to uninstall Kafaka-ZKCluster
 $ make uninstall
 
+$ ansible-playbook -i ansible-hosts setup-kafka.yml
+
 # Planning
 Adding playbook to install and confgiure kafka / zookeeper monitor

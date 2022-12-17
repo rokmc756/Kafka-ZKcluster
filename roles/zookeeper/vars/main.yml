@@ -1,0 +1,13 @@
+package_download_path : "/tmp"
+zookeeper:
+  version: 3.8.0
+  installation_path: /usr/local
+  download_mirror: http://apache.rediris.es/zookeeper
+  configuration:
+    port: 2181
+    log_path: /var/log/zookeeper
+    data_dir: /var/lib/zookeeper
+    tick_time: 2000
+    init_limit: 5
+    sync_limit: 2
+  use_internal_zookeeper: 0

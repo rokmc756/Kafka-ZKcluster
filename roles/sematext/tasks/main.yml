@@ -1,0 +1,17 @@
+---
+- name: Check if OS is supported
+  fail:
+    msg: "Unsupported ansible_distribution: {{ ansible_distribution }}"
+  when: ansible_distribution not in ['Amazon', 'CentOS', 'RedHat', 'Debian', 'Ubuntu']
+
+- name: Install package
+  include: pkg-{{ ansible_distribution | lower }}.yml
+
+- name: Start SPM Monitor
+  service:
+    name: spm-monitor
+    state: started
+    enabled: yes
+
+# java-11-openjdk
+# java-11-openjdk-devel

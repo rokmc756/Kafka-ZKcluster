@@ -1,0 +1,13 @@
+[Unit]
+Description=Kafka Web UI daemon
+After=kafka.service
+
+[Service]
+Type=simple
+ExecStart=/usr/local/kafka-webview/start.sh
+KillMode=process
+Restart=on-failure
+RestartSec=42s
+
+[Install]
+WantedBy=multi-user.target

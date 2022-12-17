@@ -1,0 +1,17 @@
+---
+- name: Debian | Add SPM Client repo key
+  apt_key:
+    url: https://pub-repo.sematext.com/ubuntu/sematext.gpg.key
+    state: present
+
+- name: Debian | Add SPM Client repo
+  apt_repository:
+    repo: "deb http://pub-repo.sematext.com/debian sematext main"
+    state: present
+
+- name: Debian | Install SPM Client
+  apt:
+    pkg: spm-client
+    state: latest
+    update-cache: yes
+

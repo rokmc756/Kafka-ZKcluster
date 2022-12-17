@@ -1,0 +1,131 @@
+---
+- name: Create kafka-webview group
+  become: yes
+  become_user: root
+  group: name=kafka-webview state=present
+
+- name: Create kafka user
+  become: yes
+  become_user: root
+  user: name=kafka-webview group=kafka-webview
+
+- set_fact:
+    webview_package_name: "kafka-webview-ui-{{ webview.version }}-bin.zip"
+    kafka_application_path: "{{ webview.installation_path }}/kafka-webview-{{ webview.version }}"
+
+- name: Check kafka-webview package
+  stat:
+    path: "/tmp/{{ webview_package_name }}"
+  register: webview_package_exists
+# path: "{{ package_download_path }}/{{ webview_package_name }}"
+
+- debug:
+    var: webview_package_exists
+
+#- name: Download kafka-webview zip if not downloaded
+#  become: yes
+#  get_url:
+#    url: "{{ webview.download_mirror }}/v{{ webview.version }}/{{ webview_package_name }}"
+#    dest: "{{ package_download_path }}/kafka-webview-{{ webview.version }}"
+#    owner: root
+#    group: root
+#    mode: 0644
+#  async: 6000
+#  poll: 0
+#  register: webview_download
+# "http://github.com/SourceLabOrg/kafka-webview/releases/download/v2.5.1/kafka-webview-ui-2.5.1-bin.zip"
+#
+#- debug:
+#    var: webview_download
+#
+#- name: Check status of webview zip file download
+#  become: yes
+#  async_status:
+#    jid: "{{ webview_download.ansible_job_id }}"
+#  register: webview_download_result
+#  until: webview_download.finished
+#  retries: 30
+#
+#- debug:
+#    var: webview_download_result
+#
+
+
+- name: Copy kafka-webview-{{ webview.version }} file
+  become: yes
+  become_user: root
+  copy:
+    src: kafka-webview-ui-2.5.1-bin.zip
+    dest: /tmp/kafka-webview-ui-2.5.1-bin.zip
+    owner: root
+    group: root
+    mode: 0644
+    backup: yes
+    force: yes
+    validate: no
+  register: webview_copy
+
+    #    mode: 0644
+    #owner: root
+    #group: root
+
+- meta: end_play
+
+
+# copy: src={{ webview_package_name }} dest={{ package_download_path }}/kafka-webview-{{ webview.version }} mode=0644 owner=root group=root
+# src: "{{ webview_package_name }}"
+
+#- debug:
+#    var: webview_copy
+
+- name: Unarchive kafka-webview zip file
+  become: yes
+  become_user: root
+  unarchive:
+    src: "/tmp/kafka-webview-ui-2.5.1-bin.zip"
+    dest: "/usr/local/"
+    remote_src: yes
+  register: webview_unarchive
+
+# src: "/home/jomoon/{{ webview_package_name }}"
+# unarchive: src={{ package_download_path }}/{{ webview_package_name }} dest={{ webview.installation_path }} remote_src=yes owner=root group=root
+# dest: "{{ webview.installation_path }}"
+
+- debug:
+    var: webview_unarchive
+
+#- name: Delete package downloaded if needed
+#  file: path={{ package_download_path }}/{{ webview_package_name }} state=absent
+#  when: force_cleanup is defined and force_cleanup == "True"
+
+- name: Check if any version of kafka is already linked
+  become: yes
+  become_user: root
+  stat: path={{ webview.installation_path }}/kafka-webview
+  register: webview_symlink_created
+
+- debug: msg={{ webview_symlink_created }}
+
+- name: Repoint symlink to new Kafka version
+  become: yes
+  become_user: root
+  file:
+    src: "{{ webview.installation_path }}/kakfa-webview-bin-{{ webview.version }}"
+    dest: "{{ webview.installation_path }}/kafka-webview"
+    state: link
+  when: not webview_symlink_created.stat.exists
+
+- name: Copy systemd configuration of kafka into /etc/systemd/system
+  become: yes
+  become_user: root
+  template: src=kafka-webview.systemd.j2 dest=/etc/systemd/system/kafka-webview.service owner=root group=root mode=644 force=yes
+
+# Start services for kafka-webview
+- name: Reload and start systemd service of kafka-webview
+  become: yes
+  become_user: root
+  systemd:
+    daemon_reload: yes
+    name: kafka-webview
+    enabled: yes
+    state: started

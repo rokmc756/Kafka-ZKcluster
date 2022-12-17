@@ -29,38 +29,18 @@ all:
 		echo ""; \
 	done
 
-init:	setup-kafka.yml update-host.yml
-	$(shell sed -i -e '2s/.*/ansible_become_pass: ${ANSIBLE_TARGET_PASS}/g' ./group_vars/all.yml)
-	@echo ""
-	@for GPHOST in ${GPHOSTS}; do \
-		IP=$${GPHOST#*,}; \
-	    	HOSTNAME=$${LINE%,*}; \
-		echo "It will init host $${IP} and install ssh key and basic packages"; \
-		echo ""; \
-		echo "Note: NEVER use this step to init a host in an untrusted network!"; \
-		echo "Note: this will OVERWRITE any existing keys on the host!"; \
-		echo ""; \
-		echo "3 seconds to abort ..."; \
-		echo ""; \
-		sleep 3; \
-		echo "IP : $${IP} , HOSTNAME : $${HOSTNAME} , USERNAME : ${USERNAME}"; \
-		./init_host.sh "$${IP}" "${USERNAME}"; \
-	done
-	ansible-playbook -i ansible-hosts -u ${USERNAME} --ssh-common-args='-o UserKnownHostsFile=./known_hosts -o VerifyHostKeyDNS=true' install-ansible-prereqs.yml
-
 # - https://ansible-tutorial.schoolofdevops.com/control_structures/
-install: role-update setup-kafka.yml
-	ansible-playbook -i ansible-hosts --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -u ${USERNAME} setup-kafka.yml
-	# ansible-playbook -i ansible-hosts --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -u ${USERNAME} setup-kafka.yml --tags="install"
+install: role-update install-kafka.yml
+	ansible-playbook --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -i ansible-hosts -u ${USERNAME} install-kafka.yml --tags="install"
 
-uninstall: role-update setup-kafka.yml
-	ansible-playbook -i ansible-hosts --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -u ${USERNAME} uninstall-kafka-zkcluster.yml
+uninstall: role-update uninstall-kafka.yml
+	ansible-playbook --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -i ansible-hosts -u ${USERNAME} uninstall-kafka.yml --tags="uninstall"
 
-upgrade: role-update setup-kafka.yml
-	ansible-playbook -i ansible-hosts --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -u ${USERNAME} setup-kafka.yml --tags="upgrade"
+upgrade: role-update install-kafka.yml
+	ansible-playbook --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -i ansible-hosts -u ${USERNAME} install-kafka.yml --tags="upgrade"
 
 update:
-	ansible-playbook -i ansible-hosts --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -i ${IP}, -u ${USERNAME} update-host.yml
+	ansible-playbook --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -i ${IP}, -u ${USERNAME} update-host.yml
 
 # https://stackoverflow.com/questions/4219255/how-do-you-get-the-list-of-targets-in-a-makefile
 no_targets__:

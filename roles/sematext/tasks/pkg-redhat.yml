@@ -1,0 +1,11 @@
+---
+- name: RedHat | Download SPM Client repo
+  get_url:
+    url: https://pub-repo.sematext.com/redhat/sematext.repo
+    dest: /etc/yum.repos.d/sematext.repo
+
+- name: RedHat | Install SPM Monitor
+  yum:
+    name: spm-client
+    state: latest
+    update_cache: yes
