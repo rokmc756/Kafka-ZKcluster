@@ -1,14 +1,14 @@
 #- set_fact:
 #    jdk_package_name: jdk-{{ java.version }}-{{ java.platform }}.rpm
-#  tags: 
+#  tags:
 #    - java 
 #    - java_installation
 
-- name: Check if java rpm package is installed
+- name: Set package manager with auto
   package_facts:
     manager: "auto"
 
-- name: Install Java rpm package
+- name: Uninstall Java rpm package
   yum:
     name: "{{ item }}"
     state: absent
@@ -39,8 +39,6 @@
 #- name: Set Java Version Fact
 #  set_fact:
 #    java_version: "{{ javaVersion.stdout_lines }}"
-#  ignore_erros: yes
 
 #- name: debug
 #  debug: var=java_version
-#  ignore_erros: yes
