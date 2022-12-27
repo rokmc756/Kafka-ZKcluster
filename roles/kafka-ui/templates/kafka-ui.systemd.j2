@@ -1,0 +1,17 @@
+[Unit]
+Description=Run Kafka UI
+After=kafka.service syslog.target network.target
+
+[Service]
+Type=simple
+User=root
+Group=root
+Environment=""
+ExecStart=java -Dspring.config.additional-location=/root/application-kafka-ui.yml -jar /root/kafka-ui-api-v0.5.0.jar > /var/log/kafka-ui.log 2>&1
+ExecReload=/bin/kill -s HUP $MAINPID
+KillMode=process
+Restart=no
+TimeoutSec=30
+
+[Install]
+WantedBy=multi-user.target

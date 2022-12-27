@@ -12,8 +12,8 @@
 
 # origianal zk_package_name: zookeeper-{{ zookeeper.version }}.tar.gz
 - set_fact:
-    zk_package_name: apache-zookeeper-{{ zookeeper.version }}.tar.gz
-    zk_application_path: "{{ zookeeper.installation_path }}/apache-zookeeper-{{ zookeeper.version }}"
+    zk_package_name: apache-zookeeper-{{ zookeeper.version }}-bin.tar.gz
+    zk_application_path: "{{ zookeeper.installation_path }}/apache-zookeeper-{{ zookeeper.version }}-bin"
   tags:
     - zookeeper
     - zk_installation
@@ -58,7 +58,7 @@
   become_user: root
   file:
     dest: "{{ zookeeper.installation_path }}/apache-zookeeper"
-    src: "{{ zookeeper.installation_path }}/apache-zookeeper-{{ zookeeper.version }}"
+    src: "{{ zookeeper.installation_path }}/apache-zookeeper-{{ zookeeper.version }}-bin"
     state: link
   when: not zk_symlink_created.stat.exists
   tags:

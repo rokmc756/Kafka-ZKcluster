@@ -102,6 +102,10 @@
     name: kafka
     enabled: yes
     state: started
+  register: kafka_started
+  until: kafka_started is succeeded
+  retries: 20
+  delay: 20
 
 - name: Reload and start systemd service of zookeeper
   become: true

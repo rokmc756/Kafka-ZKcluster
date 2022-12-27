@@ -157,3 +157,6 @@ $ make uninstall
 
 # Planning
 Adding playbook to install and confgiure kafka / zookeeper monitor
+Configuring Auth for Kafka UI ( Check if configuration SSL is possible? )
+Configuring Scheme Segistry and Ssql DB for Kafka UI
+Testing Confluent Platform recent version 7.3

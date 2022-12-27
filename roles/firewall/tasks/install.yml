@@ -1,8 +1,15 @@
 - name: Enable and Start Firewalld
-  service: name=firewalld enabled=yes state=started
+  systemd:
+    name: firewalld
+    enabled: yes
+    state: started
 
 - name: Set Firewalld Port Policy
-  firewalld: port={{ item }}/tcp permanent=true state=enabled immediate=yes
+  firewalld:
+    port: "{{ item }}/tcp"
+    permanent: true
+    state: enabled
+    immediate: yes
   with_items:
     - "{{ kafka.configuration.port }}"
     - "{{ zookeeper.configuration.port }}"

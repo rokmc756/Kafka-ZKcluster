@@ -11,6 +11,6 @@ done
 
 for i in `echo "$HOSTS"`
 do
-    ssh root@$i "rm -rf /usr/local/kafka* /usr/local/apache-zookeeper* /var/log/zookeeper /var/lib/zookeeper /var/lib/kafka /tmp/lib/kafka/kafka-logs"
+    ssh root@$i "rm -rf /usr/local/kafka* /usr/local/apache-zookeeper* /var/log/zookeeper /var/lib/zookeeper /var/lib/kafka /tmp/lib/kafka/kafka-logs /tmp/zookeeper"
     ssh root@$i "sync; echo 3 > /proc/sys/vm/drop_caches"
 done

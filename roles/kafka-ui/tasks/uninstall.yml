@@ -1,0 +1,56 @@
+---
+# 1
+- name: Stop and Disable  Kafka UI systemd service
+  become: yes
+  systemd:
+    name: kafka-ui
+    enabled: no
+    state: stopped
+  register: kafka_ui_systemd_stopped
+  ignore_errors: yes
+  when: inventory_hostname in groups['kafka-monitor']
+
+# 2
+- name: Remove config and jar files of Kafka UI
+  become: yes
+  file:
+    path: "{{ item }}"
+    state: absent
+  with_items:
+    - "/var/log/kafka-ui.log"
+    - "/etc/systemd/system/kafka-ui.service"
+    - "/root/application-kafka-ui.yml"
+    - "/root/kafka-ui-api-v0.5.0.jar"
+  ignore_errors: yes
+  when: inventory_hostname in groups['kafka-monitor']
+
+# 3
+- name: Stop and Disable  Kafka UI systemd service
+  become: yes
+  systemd:
+    daemon_reload: yes
+  register: systemd_reloaded
+  when: inventory_hostname in groups['kafka-monitor']
+
+# 4
+- name: Uninstall Java RPM Package
+  become: yes
+  yum:
+    name: "{{ item }}"
+    state: absent
+  with_items:
+    - java-17-openjdk
+    - java-17-openjdk-devel
+  when: inventory_hostname in groups['kafka-monitor']
+
+# 5
+- name: Disable Firewalld Port Policy for Kafak UI
+  become: yes
+  firewalld:
+    port: "{{ item }}/tcp"
+    permanent: true
+    state: disabled
+    immediate: yes
+  with_items:
+    - "{{ kafka_ui_port }}"
+  when: inventory_hostname in groups['kafka-monitor']

@@ -1,0 +1,16 @@
+[Unit]
+Description=Kafka
+Before=
+After=network.target
+
+[Service]
+User=kafka
+Environment=CHDIR={{ kafka.configuration.data_dir }} LOG_DIR={{ kafka.configuration.log_path }}/log
+ExecStart=/bin/bash -c "{{ kafka_application_path }}/bin/kafka-server-start.sh {{ kafka_application_path }}/config/server.properties &"
+ExecStop=/bin/bash -c "{{ kafka_application_path }}/bin/kafka-server-stop.sh"
+Restart=on-abort
+
+[Install]
+WantedBy=multi-user.target
+
+# Environment=JAVA_HOME={{ java.installation_path }} CHDIR={{ kafka.configuration.data_dir }} LOG_DIR={{ kafka.configuration.log_path }}/log

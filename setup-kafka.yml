@@ -5,9 +5,11 @@
   roles:
     - firewall
     - java
-    - kafka
     - zookeeper
+    - kafka
 
-#- hosts: sdw6-01
-#  roles:
-#    - webview
+- hosts: all
+  remote_user: root
+  become: true
+  roles:
+    - kafka-ui
