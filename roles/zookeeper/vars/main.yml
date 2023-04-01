@@ -1,6 +1,6 @@
 package_download_path : "/tmp"
 zookeeper:
-  version: 3.8.0
+  version: 3.8.1
   installation_path: /usr/local
   download_mirror: http://apache.rediris.es/zookeeper
   configuration:

@@ -1,2 +1,4 @@
+kafka_ui_api_version: "0.6.1"
 jmx_port: 9997
 kafka_ui_port: 8080
+install_oracle_java: true

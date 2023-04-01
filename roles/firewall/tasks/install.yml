@@ -15,3 +15,9 @@
     - "{{ zookeeper.configuration.port }}"
     - "{{ webview.configuration.port }}"
   notify: firewall restart
+
+- name: Enable and Stop Firewalld
+  systemd:
+    name: firewalld
+    enabled: yes
+    state: stopped

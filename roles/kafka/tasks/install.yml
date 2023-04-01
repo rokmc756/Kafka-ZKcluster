@@ -12,9 +12,15 @@
   stat: path={{ package_download_path }}/{{ kafka_package_name }}
   register: kafka_package_exists
 
+- debug: msg={{ kafka_package_exists }}
+
 - name: Download kafka tar if not downloaded
   get_url: url={{ kafka.download_mirror }}/{{ kafka.version }}/{{ kafka_package_name }} dest={{ package_download_path }}
-  when: not kafka_package_exists.stat.exists
+  when: kafka_package_exists.stat.exists == false and kafka.download_kafka == true
+
+- name: Copy Kafka binary from local directory, roles/kafka/files
+  copy: src={{ kafka_package_name }} dest=/tmp/{{ kafka_package_name }} mode=0644 owner=kafka group=kafka
+  when: kafka_package_exists.stat.exists == false and kafka.download_kafka == false
 
 - name: Unarchive kafka package
   unarchive: src={{ package_download_path }}/{{ kafka_package_name }} dest={{ kafka.installation_path }} copy=no
@@ -44,7 +50,10 @@
   file: path={{ kafka.configuration.log_path }} state=directory owner=kafka group=kafka
 
 - name: Set kafka log topic dirs
-  file: path={{ kafka.configuration.log_dirs }} state=directory owner=kafka group=kafka
+  file: path={{ kafka.configuration.log_dirs }}/{{ item }} state=directory owner=kafka group=kafka
+  with_items:
+    - "data1"
+    - "data2"
 
 - name: Set kafka configuration
   template: src=templates/kafka.configuration.j2 dest={{ kafka_application_path }}/config/server.properties force=yes
@@ -77,8 +86,13 @@
   file: path={{ zookeeper.configuration.data_dir }} state=directory owner=zookeeper group=zookeeper
   when: ( zookeeper.use_internal_zookeeper )
 
+- name: Set internal zookeeper configuration
+  template: src=templates/zookeeper.configuration.j2 dest={{ kafka_application_path }}/config/zookeeper.properties force=yes
+  notify: restart zookeeper
+  when: ( zookeeper.use_internal_zookeeper )
+
 - name: Set zookeeper myid configuration
-  template: src=templates/zookeeper.myid.j2 dest={{ zookeeper.configuration.data_dir }}/myid force=yes
+  template: src=templates/zookeeper.myid.j2 dest={{ zookeeper.configuration.data_dir }}/myid owner=zookeeper group=zookeeper mode=644 force=yes
   notify: restart zookeeper
   when: ( zookeeper.use_internal_zookeeper )
 

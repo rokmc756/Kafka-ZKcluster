@@ -20,7 +20,7 @@
     - "/var/log/kafka-ui.log"
     - "/etc/systemd/system/kafka-ui.service"
     - "/root/application-kafka-ui.yml"
-    - "/root/kafka-ui-api-v0.5.0.jar"
+    - "/root/kafka-ui-api-v{{ kafka_ui_api_version }}.jar"
   ignore_errors: yes
   when: inventory_hostname in groups['kafka-monitor']
 
@@ -41,7 +41,24 @@
   with_items:
     - java-17-openjdk
     - java-17-openjdk-devel
-  when: inventory_hostname in groups['kafka-monitor']
+  when:
+    - hostvars[inventory_hostname].ansible_distribution_major_version|int >= 8
+    - inventory_hostname in groups['kafka-monitor']
+    - install_oracle_java == false
+
+# 5
+- name: Uninstall Oracle Java RPM Package
+  become: yes
+  yum:
+    name: "{{ item }}"
+    state: absent
+  with_items:
+    - jdk-17
+  when:
+    - hostvars[inventory_hostname].ansible_distribution_major_version|int < 8
+    - inventory_hostname in groups['kafka-monitor']
+    - install_oracle_java == true
+
 
 # 5
 - name: Disable Firewalld Port Policy for Kafak UI

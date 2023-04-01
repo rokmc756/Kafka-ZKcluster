@@ -17,13 +17,14 @@
     - java-1.8.0-openjdk-devel
     - java-11-openjdk
     - java-11-openjdk-devel
-    - java-17-openjdk
-    - java-17-openjdk-devel
     - tar
+#    - java-17-openjdk
+#    - java-17-openjdk-devel  for rk8 or rk9
+ 
 #  when: "'java-1.8.0' is not in ansible_facts.packages"
 #  async: 60
 #  poll: 5
-
+ 
 - name: Correct java version selected
   alternatives:
     link: /usr/bin/java
