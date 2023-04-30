@@ -4,6 +4,7 @@ kafka:
   scala_version: 2.13
   installation_path: /usr/local
   download_mirror: http://apache.rediris.es/kafka
+  download_kafka: false
   configuration:
     port: 9092
     data_dir: /var/lib/kafka
@@ -26,6 +27,7 @@ zookeeper:
   version: 3.8.1
   installation_path: /usr/local
   download_mirror: http://apache.rediris.es/zookeeper
+  download_zookeeper: false
   configuration:
     port: 2181
     log_path: /var/log/zookeeper

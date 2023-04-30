@@ -1,5 +1,9 @@
 ---
 jvm_home: "/usr/lib/jvm"
+install_oracle_java: false
+oracle_java_version: "13.0.2"
+
+# oralce_java_version: 17
 #java:
 # version: 8u101
 # installation_path: /usr/java/jdk1.8.0_101

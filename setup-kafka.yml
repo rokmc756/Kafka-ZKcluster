@@ -3,8 +3,8 @@
   remote_user: root
   become: true
   roles:
-    - firewall
     - java
+    - firewall
     - zookeeper
     - kafka
 

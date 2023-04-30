@@ -4,7 +4,9 @@
     - "{{ kafka.configuration.port }}"
     - "{{ zookeeper.configuration.port }}"
     - "{{ webview.configuration.port }}"
+  ignore_errors: yes
   notify: firewall restart
 
 - name: Disable and Stop Firewalld
   service: name=firewalld enabled=no state=stopped
+  ignore_errors: yes

@@ -3,6 +3,7 @@ zookeeper:
   version: 3.8.1
   installation_path: /usr/local
   download_mirror: http://apache.rediris.es/zookeeper
+  download_zookeeper: false
   configuration:
     port: 2181
     log_path: /var/log/zookeeper

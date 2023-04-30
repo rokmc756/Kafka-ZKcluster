@@ -4,9 +4,21 @@
 #    - java 
 #    - java_installation
 
-- name: Check if java rpm package is installed
+- name: Check if Java RPM Package is installed
   package_facts:
     manager: "auto"
+
+- name: Install Java RPM Package
+  yum:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - java-17-openjdk
+    - java-17-openjdk-devel
+    - tar
+  when:
+    - hostvars[inventory_hostname].ansible_distribution_major_version|int >= 8
+    - install_oracle_java == false
 
 - name: Install Java rpm package
   yum:
@@ -18,22 +30,66 @@
     - java-11-openjdk
     - java-11-openjdk-devel
     - tar
-#    - java-17-openjdk
-#    - java-17-openjdk-devel  for rk8 or rk9
- 
-#  when: "'java-1.8.0' is not in ansible_facts.packages"
-#  async: 60
-#  poll: 5
- 
-- name: Correct java version selected
+  when:
+    - hostvars[inventory_hostname].ansible_distribution_major_version|int < 8
+    - install_oracle_java == false
+
+- name: Copy Oracle JAVA RPM package
+  copy:
+    src: jdk-{{ oracle_java_version }}_linux-x64_bin.rpm
+    dest: /root/jdk-{{ oracle_java_version }}_linux-x64_bin.rpm
+    mode: 0644
+    owner: root
+    group: root
+  when:
+    - hostvars[inventory_hostname].ansible_distribution_major_version|int < 8
+    - install_oracle_java == true
+
+- name: Install Oracle Java RPM package
+  yum:
+    name: /root/jdk-{{ oracle_java_version }}_linux-x64_bin.rpm
+    state: present
+    disable_gpg_check: yes
+  async: 360
+  poll: 5
+  when:
+    - hostvars[inventory_hostname].ansible_distribution_major_version|int < 8
+    - install_oracle_java == true
+
+- name: Correct Java Version Selected
   alternatives:
     link: /usr/bin/java
     name: java
-    path: /usr/lib/jvm/java-1.8.0/bin/java
+    path: /usr/lib/jvm/jre-17-openjdk/bin/java
     priority: -10
-    # path: /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.352.b08-2.el9_0.x86_64/bin/java
-    # path: /usr/lib/jvm/java-11-openjdk-11.0.ea.28-7.el7.x86_64/bin/java
-    # path: /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.181-7.b13.el7.x86_64/bin/java
+  when:
+    - hostvars[inventory_hostname].ansible_distribution_major_version|int >= 8
+    - install_oracle_java == false
+
+- name: Correct Java Version Selected
+  alternatives:
+    link: /usr/bin/java
+    name: java
+    path: /usr/lib/jvm/jre-1.8.0-openjdk/bin/java
+    priority: -10
+  when:
+    - hostvars[inventory_hostname].ansible_distribution_major_version|int < 8
+    - install_oracle_java == false
+
+- name: Correct Java Version Selected
+  alternatives:
+    link: /usr/bin/java
+    name: java
+    path: /usr/java/jdk-{{ oracle_java_version }}/bin/java
+    priority: -10
+  when:
+    - hostvars[inventory_hostname].ansible_distribution_major_version|int < 8
+    - install_oracle_java == true
+  #  path: /usr/lib/jvm/jdk-{{ oracle_java_version }}-oracle-x64/bin/java
+
+#  when: "'java-1.8.0' is not in ansible_facts.packages"
+#  async: 60
+#  poll: 5
 
 - name: Copy Java Home Script
   template: src=java_home.sh dest=/etc/profile.d

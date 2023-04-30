@@ -45,7 +45,7 @@
     - zk_setup
 
 #
-- name: create zookeeper group
+- name: Remove zookeeper group
   group: name=zookeeper state=present
   tags:
     - zookeeper
