@@ -30,11 +30,11 @@ all:
 	done
 
 # - https://ansible-tutorial.schoolofdevops.com/control_structures/
-install: role-update setup-kafka.yml
-	ansible-playbook --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -i ansible-hosts -u ${USERNAME} setup-kafka.yml --tags="install"
+install: role-update install-kafka.yml
+	ansible-playbook --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -i ansible-hosts -u ${USERNAME} install-kafka.yml --tags="install"
 
-uninstall: role-update setup-kafka.yml
-	ansible-playbook --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -i ansible-hosts -u ${USERNAME} setup-kafka.yml --tags="uninstall"
+uninstall: role-update uninstall-kafka.yml
+	ansible-playbook --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -i ansible-hosts -u ${USERNAME} uninstall-kafka.yml --tags="uninstall"
 
 upgrade: role-update setup-kafka.yml
 	ansible-playbook --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -i ansible-hosts -u ${USERNAME} setup-kafka.yml --tags="upgrade"

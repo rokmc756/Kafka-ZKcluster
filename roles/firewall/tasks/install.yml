@@ -11,9 +11,11 @@
     state: enabled
     immediate: yes
   with_items:
-    - "{{ kafka.configuration.port }}"
-    - "{{ zookeeper.configuration.port }}"
-    - "{{ webview.configuration.port }}"
+    - "9092" # {{ kafka.configuration.port }}"
+    - "2181" # {{ zookeeper.configuration.port }}"
+    - "8088" # {{ webview.configuration.port }}"
+    - "2888" # Quorum?
+    - "3888" # Quorum?
   notify: firewall restart
 
 - name: Enable and Stop Firewalld

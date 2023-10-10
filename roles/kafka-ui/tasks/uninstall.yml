@@ -1,5 +1,5 @@
 ---
-# 1
+#
 - name: Stop and Disable  Kafka UI systemd service
   become: yes
   systemd:
@@ -10,7 +10,7 @@
   ignore_errors: yes
   when: inventory_hostname in groups['kafka-monitor']
 
-# 2
+#
 - name: Remove config and jar files of Kafka UI
   become: yes
   file:
@@ -24,7 +24,7 @@
   ignore_errors: yes
   when: inventory_hostname in groups['kafka-monitor']
 
-# 3
+#
 - name: Stop and Disable  Kafka UI systemd service
   become: yes
   systemd:
@@ -32,21 +32,27 @@
   register: systemd_reloaded
   when: inventory_hostname in groups['kafka-monitor']
 
-# 4
+#
 - name: Uninstall Java RPM Package
   become: yes
   yum:
     name: "{{ item }}"
     state: absent
   with_items:
+    - java-1.8.0-openjdk
+    - java-1.8.0-openjdk-devel
+    - java-11-openjdk
+    - java-11-openjdk-devel
     - java-17-openjdk
     - java-17-openjdk-devel
+    - jdk-17
+    - jdk
   when:
     - hostvars[inventory_hostname].ansible_distribution_major_version|int >= 8
     - inventory_hostname in groups['kafka-monitor']
     - install_oracle_java == false
 
-# 5
+#
 - name: Uninstall Oracle Java RPM Package
   become: yes
   yum:
@@ -55,12 +61,11 @@
   with_items:
     - jdk-17
   when:
-    - hostvars[inventory_hostname].ansible_distribution_major_version|int < 8
+    - hostvars[inventory_hostname].ansible_distribution_major_version|int <= 8
     - inventory_hostname in groups['kafka-monitor']
     - install_oracle_java == true
 
-
-# 5
+#
 - name: Disable Firewalld Port Policy for Kafak UI
   become: yes
   firewalld:
@@ -71,3 +76,4 @@
   with_items:
     - "{{ kafka_ui_port }}"
   when: inventory_hostname in groups['kafka-monitor']
+

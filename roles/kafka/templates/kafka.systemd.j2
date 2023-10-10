@@ -8,7 +8,7 @@ After=network.target remote-fs.target zookeeper.service
 Type=simple
 User=kafka
 Group=kafka
-Environment=JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk JMX_PORT=9997
+Environment=JAVA_HOME=\$JAVA_HOME JMX_PORT=9997
 ExecStart=/bin/bash -c "{{ kafka_application_path }}/bin/kafka-server-start.sh {{ kafka_application_path }}/config/server.properties"
 ExecStop=/bin/bash -c "{{ kafka_application_path }}/bin/kafka-server-stop.sh"
 

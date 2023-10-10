@@ -1,59 +1,44 @@
-- name: create zookeeper group
+#
+- name: Create zookeeper group
   group: name=zookeeper state=present
-  tags:
-    - zookeeper
-    - zk_setup
 
-- name: create zookeeper user
+#
+- name: Create zookeeper user
   user: name=zookeeper group=zookeeper
-  tags:
-    - zookeeper
-    - zk_setup
 
-# origianal zk_package_name: zookeeper-{{ zookeeper.version }}.tar.gz
+# Origianal zk_package_name: zookeeper-{{ zookeeper.version }}.tar.gz
 - set_fact:
     zk_package_name: apache-zookeeper-{{ zookeeper.version }}-bin.tar.gz
     zk_application_path: "{{ zookeeper.installation_path }}/apache-zookeeper-{{ zookeeper.version }}-bin"
-  tags:
-    - zookeeper
-    - zk_installation
 
-- name: check zookeeper package
+#
+- name: Check zookeeper package
   stat: path={{ package_download_path }}/{{ zk_package_name }}
   register: zk_package_exists
-  tags:
-    - zookeeper
-    - zk_installation
 
-- name: download zookeeper tar if not downloaded
+#
+- name: Download zookeeper tar if not downloaded
   get_url: url={{ zookeeper.download_mirror }}/zookeeper-{{ zookeeper.version }}/{{ zk_package_name }} dest={{ package_download_path }}
   when: not zk_package_exists.stat.exists
-  tags:
-    - zookeeper
-    - zk_installation
 
-- name: unarchive zookeeper package
+#
+- name: Unarchive zookeeper package
   unarchive: src={{ package_download_path }}/{{ zk_package_name }} dest={{ zookeeper.installation_path }} copy=no
-  tags:
-    - zookeeper
-    - zk_installation
 
-- name: delete package downloaded if needed
+#
+- name: Delete package downloaded if needed
   file: path={{ package_download_path }}/{{ zk_package_name }} state=absent
   when: force_cleanup is defined and force_cleanup == "True"
-  tags:
-    - zookeeper
-    - zk_installation
 
-- name: check if any version of zookeeper is already linked
+#
+- name: Check if any version of zookeeper is already linked
   stat: path={{ zookeeper.installation_path }}/apache-zookeeper
   register: zk_symlink_created
-  tags:
-    - zookeeper
-    - zk_installation
 
+#
 - debug: msg={{ zk_symlink_created }}
 
+#
 - name: Repoint symlink to new zookeeper version
   become_user: root
   file:
@@ -61,51 +46,34 @@
     src: "{{ zookeeper.installation_path }}/apache-zookeeper-{{ zookeeper.version }}-bin"
     state: link
   when: not zk_symlink_created.stat.exists
-  tags:
-    - zookeeper
-    - zk_installation
 
-- name: set zookeeper data dir
+#
+- name: Set zookeeper data dir
   file: path={{ zookeeper.configuration.data_dir }} state=directory owner=zookeeper group=zookeeper
-  tags: 
-    - zookeeper
-    - zk_configuration
 
-- name: set zookeeper log dir
+#
+- name: Set zookeeper log dir
   file: path={{ zookeeper.configuration.log_path }} state=directory owner=zookeeper group=zookeeper
-  tags:
-    - zookeeper
-    - zk_configuration
 
-- name: set zookeeper configuration
+#
+- name: Set zookeeper configuration
   template: src=templates/zookeeper.configuration.j2 dest={{ zk_application_path }}/conf/zoo.cfg force=yes
   notify: restart zookeeper
-  tags:
-    - zookeeper
-    - zk_configuration
 
-- name: set zookeeper data dir
+#
+- name: Set zookeeper data dir
   file: path={{ zookeeper.configuration.data_dir }} state=directory owner=zookeeper group=zookeeper
-  tags:
-    - zookeeper
-    - zk_configuration
 
-- name: set zookeeper myid configuration
+#
+- name: Set zookeeper myid configuration
   template: src=templates/zookeeper.myid.j2 dest={{ zookeeper.configuration.data_dir }}/myid force=yes
   notify: restart zookeeper
-  tags:
-    - zookeeper
-    - zk_configuration
 
-- name: start zookeeper
+#
+- name: Start zookeeper
   template: src=zookeeper.systemd.j2 dest=/etc/systemd/system/zookeeper.service owner=root group=root mode=644 force=yes
-  tags:
-    - zookeeper
-    - zk_startup
 
-- name: reload systemd daemon
+#
+- name: Reload systemd daemon
   shell: "systemctl daemon-reload"
   notify: restart zookeeper
-  tags:
-    - zookeeper
-    - zk_startup

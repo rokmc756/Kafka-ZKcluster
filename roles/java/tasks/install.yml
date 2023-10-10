@@ -4,11 +4,13 @@
 #    - java 
 #    - java_installation
 
+#
 - name: Check if Java RPM Package is installed
   package_facts:
     manager: "auto"
 
-- name: Install Java RPM Package
+#
+- name: Install Java RPM Package for RHEL/CentOS/Rocky 8 and higher versions
   yum:
     name: "{{ item }}"
     state: present
@@ -20,7 +22,8 @@
     - hostvars[inventory_hostname].ansible_distribution_major_version|int >= 8
     - install_oracle_java == false
 
-- name: Install Java rpm package
+#
+- name: Install Java RPM Package for RHEL/CentOS/Rocky 7 and lower versions
   yum:
     name: "{{ item }}"
     state: present
@@ -34,6 +37,7 @@
     - hostvars[inventory_hostname].ansible_distribution_major_version|int < 8
     - install_oracle_java == false
 
+#
 - name: Copy Oracle JAVA RPM package
   copy:
     src: jdk-{{ oracle_java_version }}_linux-x64_bin.rpm
@@ -42,9 +46,10 @@
     owner: root
     group: root
   when:
-    - hostvars[inventory_hostname].ansible_distribution_major_version|int < 8
+    - hostvars[inventory_hostname].ansible_distribution_major_version|int <= 8
     - install_oracle_java == true
 
+#
 - name: Install Oracle Java RPM package
   yum:
     name: /root/jdk-{{ oracle_java_version }}_linux-x64_bin.rpm
@@ -53,9 +58,10 @@
   async: 360
   poll: 5
   when:
-    - hostvars[inventory_hostname].ansible_distribution_major_version|int < 8
+    - hostvars[inventory_hostname].ansible_distribution_major_version|int <= 8
     - install_oracle_java == true
 
+#
 - name: Correct Java Version Selected
   alternatives:
     link: /usr/bin/java
@@ -66,6 +72,7 @@
     - hostvars[inventory_hostname].ansible_distribution_major_version|int >= 8
     - install_oracle_java == false
 
+#
 - name: Correct Java Version Selected
   alternatives:
     link: /usr/bin/java
@@ -76,6 +83,7 @@
     - hostvars[inventory_hostname].ansible_distribution_major_version|int < 8
     - install_oracle_java == false
 
+#
 - name: Correct Java Version Selected
   alternatives:
     link: /usr/bin/java
@@ -83,24 +91,24 @@
     path: /usr/java/jdk-{{ oracle_java_version }}/bin/java
     priority: -10
   when:
-    - hostvars[inventory_hostname].ansible_distribution_major_version|int < 8
+    - hostvars[inventory_hostname].ansible_distribution_major_version|int <= 8
     - install_oracle_java == true
   #  path: /usr/lib/jvm/jdk-{{ oracle_java_version }}-oracle-x64/bin/java
 
-#  when: "'java-1.8.0' is not in ansible_facts.packages"
-#  async: 60
-#  poll: 5
-
+#
 - name: Copy Java Home Script
   template: src=java_home.sh dest=/etc/profile.d
 
+#
 - name: Set Java Home Script
   shell: source /etc/profile.d/java_home.sh
 
+#
 - name: Get Java Version
   shell: java -version
   register: javaVersion
 
+#
 - name: Set Java Version Fact
   set_fact:
     java_version: "{{ javaVersion.stdout_lines }}"
@@ -108,41 +116,16 @@
 - name: debug
   debug: var=java_version
 
-#  stat: path={{ package_download_path }}/{{ jdk_package_name }}
-#  register: jdk_package_exists
+#- name: download jdk package if not downloaded
+#  get_url: url={{ java.download_mirror }}/{{ java.version }}-{{ java.build }}/{{ jdk_package_name }} dest={{ package_download_path }} headers={{ java.download_cookies }}
+#  when: not jdk_package_exists.stat.exists 
 #  tags:
 #    - java 
 #    - java_installation
 
-#- name: download jdk package if not downloaded
-#  get_url: url={{ java.download_mirror }}/{{ java.version }}-{{ java.build }}/{{ jdk_package_name }} dest={{ package_download_path }} headers={{ java.download_cookies }}
-#  when: not jdk_package_exists.stat.exists 
+#- name: make java system alternative
+#  priority parameter its supported in Ansible > 2.2
+#  alternatives: name=java path={{ java.installation_path }}/bin/java link=/usr/bin/java
 #  tags: 
 #    - java 
 #    - java_installation
-
-    #- name: install jdk rpm
-    #  yum: name={{ package_download_path }}/{{ jdk_package_name }} state=installed
-    #  tags: 
-    #    - java 
-    #    - java_installation
-
-    #- name: delete package downloaded if needed
-    #  file: path={{ package_download_path }}/{{ jdk_package_name }} state=absent
-    #  when: force_cleanup is defined and force_cleanup == "True"
-    #  tags:
-    #    - java 
-    #    - java_installation
-
-    #- name: symlink to /usr/local
-    #  file: state=link src={{ java.installation_path }} dest=/usr/bin/java owner=root group=root
-    #  tags: 
-    #    - java 
-    #    - java_installation
-
-    #- name: make java system alternative
-  # priority parameter its supported in Ansible > 2.2
-  #  alternatives: name=java path={{ java.installation_path }}/bin/java link=/usr/bin/java
-  #  tags: 
-  #    - java 
-  #    - java_installation
