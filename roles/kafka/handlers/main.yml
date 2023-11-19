@@ -1,8 +1,8 @@
-- name: start kafka
+- name: Start kafka
   service: name=kafka state=started enabled=yes
 
-- name: stop kafka
+- name: Stop kafka
   service: name=kafka state=stopped enabled=yes
 
-- name: restart kafka
+- name: Restart kafka
   service: name=kafka state=restarted enabled=yes

@@ -1,9 +1,11 @@
+#
 - name: Enable and Start Firewalld
   systemd:
     name: firewalld
-    enabled: yes
+    enabled: true
     state: started
 
+#
 - name: Set Firewalld Port Policy
   firewalld:
     port: "{{ item }}/tcp"
@@ -18,8 +20,7 @@
     - "3888" # Quorum?
   notify: firewall restart
 
-- name: Enable and Stop Firewalld
-  systemd:
-    name: firewalld
-    enabled: yes
-    state: stopped
+#
+#- name: Disable and Stop Firewalld
+#  service: name=firewalld enabled=no state=stopped
+#  ignore_errors: yes

@@ -1,3 +1,4 @@
+---
 #
 - set_fact:
     kafka_package_name: kafka_{{ kafka.scala_version }}-{{ kafka.version }}.tgz
@@ -18,7 +19,7 @@
     name: "zookeeper"
     enabled: no
     state: stopped
-  # when: ( zookeeper.use_internal_zookeeper )
+  when: ( zookeeper.use_internal_zookeeper )
 
 #
 - name: Delete config/log/data files for Kafka

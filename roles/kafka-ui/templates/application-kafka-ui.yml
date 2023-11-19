@@ -1,6 +1,6 @@
 kafka:
   clusters:
-{% for server in groups["kafka_servers"] %}
+{% for server in groups["brokers"] %}
     - name: {{ hostvars[server].ansible_hostname }}
       bootstrapServers: {{ hostvars[server]['ansible_eth0']['ipv4']['address'] }}:9092
       zookeeper: {{ hostvars[server]['ansible_eth0']['ipv4']['address'] }}:2181

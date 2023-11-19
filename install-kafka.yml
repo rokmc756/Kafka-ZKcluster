@@ -1,5 +1,5 @@
 ---
-- hosts: kafka_servers
+- hosts: brokers
   remote_user: root
   become: true
   roles:
@@ -8,8 +8,10 @@
     - zookeeper
     - kafka
 
-- hosts: kafka-monitor
+- hosts: monitor
   remote_user: root
   become: true
   roles:
+    - firewall
+    - java
     - kafka-ui

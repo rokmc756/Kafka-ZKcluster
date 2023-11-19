@@ -6,9 +6,9 @@
   when: ansible_os_family != 'RedHat' or ansible_os_family != 'CentOS'  ansible_os_family != 'Rocky'
 
 - name: Install Java
-  include: install.yml
+  import_tasks: install.yml
   tags: install
 
 - name: Uninstall Java
-  include: uninstall.yml
+  import_tasks: uninstall.yml
   tags: uninstall

@@ -74,7 +74,7 @@
 #
 - name: Set kafka configuration
   template: src=templates/kafka.configuration.j2 dest={{ kafka_application_path }}/config/server.properties force=yes
-  notify: restart kafka
+  notify: Restart kafka
 
 #
 - name: Copy systemd configuration of kafka into /etc/systemd/system
@@ -112,13 +112,13 @@
 #
 - name: Set internal zookeeper configuration
   template: src=templates/zookeeper.configuration.j2 dest={{ kafka_application_path }}/config/zookeeper.properties force=yes
-  notify: restart zookeeper
+  notify: Restart zookeeper
   when: ( zookeeper.use_internal_zookeeper )
 
 #
 - name: Set zookeeper myid configuration
   template: src=templates/zookeeper.myid.j2 dest={{ zookeeper.configuration.data_dir }}/myid owner=zookeeper group=zookeeper mode=644 force=yes
-  notify: restart zookeeper
+  notify: Restart zookeeper
   when: ( zookeeper.use_internal_zookeeper )
 
 #

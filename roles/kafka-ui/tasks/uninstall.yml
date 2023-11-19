@@ -8,7 +8,7 @@
     state: stopped
   register: kafka_ui_systemd_stopped
   ignore_errors: yes
-  when: inventory_hostname in groups['kafka-monitor']
+  when: inventory_hostname in groups['monitor']
 
 #
 - name: Remove config and jar files of Kafka UI
@@ -22,7 +22,7 @@
     - "/root/application-kafka-ui.yml"
     - "/root/kafka-ui-api-v{{ kafka_ui_api_version }}.jar"
   ignore_errors: yes
-  when: inventory_hostname in groups['kafka-monitor']
+  when: inventory_hostname in groups['monitor']
 
 #
 - name: Stop and Disable  Kafka UI systemd service
@@ -30,7 +30,7 @@
   systemd:
     daemon_reload: yes
   register: systemd_reloaded
-  when: inventory_hostname in groups['kafka-monitor']
+  when: inventory_hostname in groups['monitor']
 
 #
 - name: Uninstall Java RPM Package
@@ -49,7 +49,7 @@
     - jdk
   when:
     - hostvars[inventory_hostname].ansible_distribution_major_version|int >= 8
-    - inventory_hostname in groups['kafka-monitor']
+    - inventory_hostname in groups['monitor']
     - install_oracle_java == false
 
 #
@@ -62,7 +62,7 @@
     - jdk-17
   when:
     - hostvars[inventory_hostname].ansible_distribution_major_version|int <= 8
-    - inventory_hostname in groups['kafka-monitor']
+    - inventory_hostname in groups['monitor']
     - install_oracle_java == true
 
 #
@@ -75,5 +75,5 @@
     immediate: yes
   with_items:
     - "{{ kafka_ui_port }}"
-  when: inventory_hostname in groups['kafka-monitor']
+  when: inventory_hostname in groups['monitor']
 

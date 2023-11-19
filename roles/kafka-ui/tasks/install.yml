@@ -7,13 +7,13 @@
     immediate: yes
   with_items:
     - "{{ kafka_ui_port }}"
-  when:  inventory_hostname in groups['kafka-monitor']
+  when:  inventory_hostname in groups['monitor']
 
 #
 - name: Check if Java RPM Package is installed
   package_facts:
     manager: "auto"
-  when: inventory_hostname in groups['kafka-monitor']
+  when: inventory_hostname in groups['monitor']
 
 #
 - name: Install Java RPM Package
@@ -25,7 +25,7 @@
     - java-17-openjdk-devel
   when:
     - hostvars[inventory_hostname].ansible_distribution_major_version|int >= 8
-    - inventory_hostname in groups['kafka-monitor']
+    - inventory_hostname in groups['monitor']
     - install_oracle_java == false
 
 #
@@ -37,7 +37,7 @@
     priority: -10
   when:
     - hostvars[inventory_hostname].ansible_distribution_major_version|int >= 8
-    - inventory_hostname in groups['kafka-monitor']
+    - inventory_hostname in groups['monitor']
     - install_oracle_java == false
 
 #
@@ -45,7 +45,7 @@
   copy: src=jdk-17_linux-x64_bin.rpm dest=/root/jdk-17_linux-x64_bin.rpm mode=0644 owner=root group=root
   when:
     - hostvars[inventory_hostname].ansible_distribution_major_version|int <= 8
-    - inventory_hostname in groups['kafka-monitor']
+    - inventory_hostname in groups['monitor']
     - install_oracle_java == true
 
 #
@@ -58,7 +58,7 @@
   poll: 5
   when:
     - hostvars[inventory_hostname].ansible_distribution_major_version|int <= 8
-    - inventory_hostname in groups['kafka-monitor']
+    - inventory_hostname in groups['monitor']
     - install_oracle_java == true
 
 #
@@ -70,23 +70,23 @@
     priority: -10
   when:
     - hostvars[inventory_hostname].ansible_distribution_major_version|int <= 8
-    - inventory_hostname in groups['kafka-monitor']
+    - inventory_hostname in groups['monitor']
     - install_oracle_java == true
 
 #
 - name: Set Kafka UI Configuration
   template: src=templates/application-kafka-ui.yml dest=/root/application-kafka-ui.yml owner=root group=root mode=644 force=yes
-  when: inventory_hostname in groups['kafka-monitor']
+  when: inventory_hostname in groups['monitor']
 
 #
 - name: Copy API JAR file of Kafka UI
   copy: src=kafka-ui-api-v{{ kafka_ui_api_version }}.jar dest=/root/kafka-ui-api-v{{ kafka_ui_api_version }}.jar mode=0644 owner=root group=root
-  when: inventory_hostname in groups['kafka-monitor']
+  when: inventory_hostname in groups['monitor']
 
 #
 - name: Copy systemd file of Kafka UI
   template: src=kafka-ui.systemd.j2 dest=/etc/systemd/system/kafka-ui.service owner=root group=root mode=644 force=yes
-  when: inventory_hostname in groups['kafka-monitor']
+  when: inventory_hostname in groups['monitor']
 
 #
 - name: Reload and start Kafka UI systemd service
@@ -96,5 +96,5 @@
     enabled: yes
     state: started
   register: kafka_ui_systemd_started
-  when: inventory_hostname in groups['kafka-monitor']
+  when: inventory_hostname in groups['monitor']
 
