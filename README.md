@@ -198,6 +198,7 @@ $ make install
 ## How to Destroy Kafaka-ZKCluster
 #### Configure ansible playbook to destroy Kafka-ZKCluster and Kafka UI
 ```
+$ vi uninstall-kafka.yml
 ---
 - hosts: monitor
   remote_user: root
