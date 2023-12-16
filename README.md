@@ -44,11 +44,13 @@ $ sudo yum install sshpass
 Configure Yum / Local & EPEL Repostiory
 
 ## How to install and confgiure Kafaka-ZKCluster
+#### 1) Clone playbook from github and move installation directory
 ```
 $ git clone https://github.com/rokmc756/kafka-zkcluster
 $ cd kafka-zkcluster
 ```
 
+#### 2) Configure user password of sudo user
 ```
 $ vi Makefile
 ~~ snip
@@ -57,7 +59,7 @@ ANSIBLE_TARGET_PASS="changeme"  # It should be changed with password of sudo use
 ~~ snip
 ```
 
-#### t
+#### 3) Configure hostname / ip addresses / username into inventory file to run ansible playbook
 ```
 $ vi ansible-hosts
 [all:vars]
@@ -66,32 +68,37 @@ remote_machine_username="jomoon"
 remote_machine_password="changeme"
 
 # These are your kafka cluster nodes
-[kafka_servers]
-sdw6-01 kafka_broker_id=1 ansible_ssh_host=192.168.0.61
-sdw6-02 kafka_broker_id=2 ansible_ssh_host=192.168.0.62
-sdw6-03 kafka_broker_id=3 ansible_ssh_host=192.168.0.63
+[monitor]
+co7-master kafka_broker_id=4 ansible_ssh_host=192.168.0.61
+
+# These are your kafka cluster nodes
+[brokers]
+co7-node01 kafka_broker_id=1 ansible_ssh_host=192.168.0.63
+co7-node02 kafka_broker_id=2 ansible_ssh_host=192.168.0.64
+co7-node03 kafka_broker_id=3 ansible_ssh_host=192.168.0.65
 
 # These are your zookeeper cluster nodes
-[zk_servers]
-sdw6-01 zk_id=1 ansible_ssh_host=192.168.0.61
-sdw6-02 zk_id=2 ansible_ssh_host=192.168.0.62
-sdw6-03 zk_id=3 ansible_ssh_host=192.168.0.63
+[zookeepers]
+co7-node01 zk_id=1 ansible_ssh_host=192.168.0.63
+co7-node02 zk_id=2 ansible_ssh_host=192.168.0.64
+co7-node03 zk_id=3 ansible_ssh_host=192.168.0.65
 ```
 
-#### t
+#### 4) Configure variables for kafka version and location which will be installed as well as other parameters
 ```
-$ vi group_vars/kafka_servers
+$ vi roles/kafka/vars/main.yml
 package_download_path : "/tmp"
 kafka:
-  version: 2.8.1
+  version: 3.5.1
   scala_version: 2.13
   installation_path: /usr/local
   download_mirror: http://apache.rediris.es/kafka
+  download_kafka: false
   configuration:
     port: 9092
-    data_dir: /var/lib/kafka
-    log_dirs: /tmp/lib/kafka/kafka-logs
-    log_path: /var/log/kafka
+    data_dir: /usr/local/kafka/data
+    log_dirs: /usr/local/kafka/logs
+    log_path: /usr/local/kafka/log
     network_threads: 3
     disk_threads: 8
     num_partitions: 3
@@ -105,10 +112,15 @@ kafka:
     log_retention_check_interval: 300000
     log_cleaner_enable: false
     zk_connection_timeout: 60000
+  #  log_dirs: /tmp/lib/kafka/kafka-logs
+  #  data_dir: /var/lib/kafka
+  #  log_dirs: /usr/local/kafka/logs
+  #  log_path: /var/log/kafka
 zookeeper:
-  version: 3.7.0
+  version: 3.8.1
   installation_path: /usr/local
   download_mirror: http://apache.rediris.es/zookeeper
+  download_zookeeper: false
   configuration:
     port: 2181
     log_path: /var/log/zookeeper
@@ -116,47 +128,93 @@ zookeeper:
     tick_time: 2000
     init_limit: 5
     sync_limit: 2
-  use_internal_zookeeper: 1
-java:
-  version: 8u101
-  installation_path: /usr/java/jdk1.8.0_101
-  build: b13
-  platform: x86_64
-  priority: 100
-  download_mirror: http://download.oracle.com/otn-pub/java/jdk
-  download_cookies: "Cookie: gpw_e24=http%3A%2F%2Fwww.oracle.com%2F; oraclelicense=accept-securebackup-cookie"
+  use_internal_zookeeper: false
 ```
 
-## How to install Kafaka-ZKCluster
-#### t
+#### 5) Configure variables for zookeeper version and location which will be installed as well as other parameters
+```
+$ vi roles/zookeeper/vars/main.yml
+package_download_path : "/tmp"
+zookeeper:
+  version: 3.9.1
+  installation_path: /usr/local
+  download_mirror: http://apache.rediris.es/zookeeper
+  download_zookeeper: false
+  configuration:
+    port: 2181
+    log_path: /usr/local/apache-zookeeper/log
+    data_dir: /usr/local/apache-zookeeper/data
+    tick_time: 2000
+    init_limit: 5
+    sync_limit: 2
+  use_internal_zookeeper: false
+#  log_path: /var/log/zookeeper
+#  data_dir: /var/lib/zookeeper
+```
+
+#### 6) Configure variables for java version and location
+```
+$ vi roles/java/vars/main.yml
+---
+jvm_home: "/usr/lib/jvm"
+install_oracle_java: false
+oracle_java_version: "13.0.2"
+```
+
+#### 7) Configure variables for Kafka UI version and other parameters
+```
+$ vi roles/kafka-ui/vars/main.yml
+kafka_ui_api_version: "0.7.1"
+jmx_port: 9997
+kafka_ui_port: 8080
+install_oracle_java: true
+```
+
+## How to Deploy Kafaka-ZKCluster
+#### Configure ansible playbook to deploy Kafka-ZKCluster and UI
 ```
 $ vi install-kafka.yml
 ---
-- hosts: kafka_servers
+- hosts: brokers
+  remote_user: root
+  become: true
+  roles:
+    - java
+    - firewall
+    - zookeeper
+    - kafka
+
+- hosts: monitor
   remote_user: root
   become: true
   roles:
     - firewall
     - java
-    - kafka
-    - zookeeper
+    - kafka-ui
 
 $ make install
 ```
 
-## How to uninstall Kafaka-ZKCluster
-#### t
+## How to Destroy Kafaka-ZKCluster
+#### Configure ansible playbook to destroy Kafka-ZKCluster and UI
 ```
-$ vi uninstall-kafka.yml
 ---
-- hosts: kafka_servers
+- hosts: monitor
   remote_user: root
   become: true
   roles:
-    - zookeeper
-    - kafka
+    - kafka-ui
+    - firewall
+    - java
+
+- hosts: brokers
+  remote_user: root
+  become: true
+  roles:
     - java
     - firewall
+    - zookeeper
+    - kafka
 
 $ make uninstall
 ```
