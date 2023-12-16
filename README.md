@@ -5,7 +5,6 @@ Zookeeper it self is allowing multiple clients to perform simultaneous reads and
 ## Kafka-ZKCluster Architecutre
 ![alt text](https://raw.githubusercontent.com/rokmc756/kafka-zkcluster/main/roles/kafka/images/kafka-zkcluster-architecture2.webp)
 
-
 ## Where is Kafka-ZKCluster from how is it changed?
 Kafka-ZKCluster has been developing based on https://github.com/sleighzy/ansible-kafka. Sleighzy! Thanks for sharing it.
 Since it provide Oracle JDK install I've changed it to OpenJDK in grobal variables in a group_vars directory.
@@ -20,7 +19,6 @@ Additionally systemd configuration files for zookeeper and kafka has been change
 * Cloud Infrastructure
 * Baremetal
 * RHEL / CentOS and Rocky 6.x/7.x/8.x/9.x
-
 
 ## Prerequisite
 MacOS or Fedora/CentOS/RHEL installed with ansible as ansible host.
