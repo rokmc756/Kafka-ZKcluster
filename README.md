@@ -1,61 +1,62 @@
-# What is Kafka-ZKCluster?
+## What is Kafka-ZKCluster?
 Kafka-ZKCluster is ansible playbook to deploy Apache Kafka that is a distributed event streaming platform using publish-subscribe topics and Zookeeper that keeps track of status of the Kafka cluster nodes and it also keeps track of Kafka topics, partitions etc.
 Zookeeper it self is allowing multiple clients to perform simultaneous reads and writes and acts as a shared configuration service within the system.
 
-# Kafka-ZKCluster Architecutre
+## Kafka-ZKCluster Architecutre
 ![alt text](https://github.com/rokmc756/kafka-zkcluster/blob/main/roles/kafka/files/kafka-diagram.jpeg)
 
 
-# Where is Kafka-ZKCluster from how is it changed?
+## Where is Kafka-ZKCluster from how is it changed?
 Kafka-ZKCluster has been developing based on https://github.com/sleighzy/ansible-kafka. Sleighzy! Thanks for sharing it.
 Since it provide Oracle JDK install I've changed it to OpenJDK in grobal variables in a group_vars directory.
 Additionally systemd configuration files for zookeeper and kafka has been changed as well.
 
-# Supported Kafka and Zookeeper version
-Kafka
-Zookeeper
+## Supported Kafka and Zookeeper version
+* Kafka
+* Zookeeper
 
-# Supported Platform and OS
-Virtual Machines
-Cloud Infrastructure
-Baremetal
-RHEL / CentOS and Rocky 5/6/7
+## Supported Platform and OS
+* Virtual Machines
+* Cloud Infrastructure
+* Baremetal
+* RHEL / CentOS and Rocky 6.x/7.x/8.x/9.x
 
 
-# Prerequisite
+## Prerequisite
 MacOS or Fedora/CentOS/RHEL installed with ansible as ansible host.
 At least three supported OS should be prepared with yum repository configured
 
-# Prepare ansible host to run gpfarmer
+## Prepare ansible host to run gpfarmer
 * MacOS
-~~~
+```
 $ xcode-select --install
 $ brew install ansible
 $ brew install https://raw.githubusercontent.com/kadwanev/bigboybrew/master/Library/Formula/sshpass.rb
-~~~
+```
 
 * Fedora/CentOS/RHEL
-~~~
+```
 $ sudo yum install ansible
 $ sudo yum install sshpass
-~~~
+```
 
 ## Prepareing OS
 Configure Yum / Local & EPEL Repostiory
 
-# How to install and confgiure Kafaka-ZKCluster
+## How to install and confgiure Kafaka-ZKCluster
+```
 $ git clone https://github.com/rokmc756/kafka-zkcluster
-
 $ cd kafka-zkcluster
+```
 
+```
 $ vi Makefile
-~~~
+~~ snip
 ANSIBLE_HOST_PASS="changeme"  # It should be changed with password of user in ansible host that gpfarmer would be run.
 ANSIBLE_TARGET_PASS="changeme"  # It should be changed with password of sudo user in managed nodes that gpdb would be installed.
-~~~
+~~ snip
 
 $ vi ansible-hosts
-~~~
 [all:vars]
 ssh_key_filename="id_rsa"
 remote_machine_username="jomoon"
@@ -72,11 +73,11 @@ sdw6-03 kafka_broker_id=3 ansible_ssh_host=192.168.0.63
 sdw6-01 zk_id=1 ansible_ssh_host=192.168.0.61
 sdw6-02 zk_id=2 ansible_ssh_host=192.168.0.62
 sdw6-03 zk_id=3 ansible_ssh_host=192.168.0.63
-~~~
+```
 
 
+```
 $ vi group_vars/kafka_servers
-~~~
 package_download_path : "/tmp"
 kafka:
   version: 2.8.1
@@ -121,10 +122,10 @@ java:
   priority: 100
   download_mirror: http://download.oracle.com/otn-pub/java/jdk
   download_cookies: "Cookie: gpw_e24=http%3A%2F%2Fwww.oracle.com%2F; oraclelicense=accept-securebackup-cookie"
-~~~
+```
 
-# How to install Kafaka-ZKCluster
-~~~
+## How to install Kafaka-ZKCluster
+```
 $ vi install-kafka.yml
 ---
 - hosts: kafka_servers
@@ -137,11 +138,11 @@ $ vi install-kafka.yml
     - zookeeper
 
 $ make install
-~~~
+```
 
-# How to uninstall Kafaka-ZKCluster
+## How to uninstall Kafaka-ZKCluster
+```
 $ vi uninstall-kafka.yml
-~~~
 ---
 - hosts: kafka_servers
   remote_user: root
@@ -153,7 +154,7 @@ $ vi uninstall-kafka.yml
     - firewall
 
 $ make uninstall
-~~~
+```
 
 # Planning
 - Adding playbook to install and confgiure kafka / zookeeper monitor
