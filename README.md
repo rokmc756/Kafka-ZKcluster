@@ -3,7 +3,7 @@ Kafka-ZKCluster is ansible playbook to deploy Apache Kafka that is a distributed
 Zookeeper it self is allowing multiple clients to perform simultaneous reads and writes and acts as a shared configuration service within the system.
 
 ## Kafka-ZKCluster Architecutre
-![alt text](https://github.com/rokmc756/kafka-zkcluster/blob/main/roles/kafka/files/kafka-diagram.jpeg)
+![alt text](https://raw.githubusercontent.com/rokmc756/kafka-zkcluster/main/roles/kafka/images/kafka-zkcluster-architecture2.webp)
 
 
 ## Where is Kafka-ZKCluster from how is it changed?
