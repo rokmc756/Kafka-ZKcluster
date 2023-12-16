@@ -55,7 +55,10 @@ $ vi Makefile
 ANSIBLE_HOST_PASS="changeme"  # It should be changed with password of user in ansible host that gpfarmer would be run.
 ANSIBLE_TARGET_PASS="changeme"  # It should be changed with password of sudo user in managed nodes that gpdb would be installed.
 ~~ snip
+```
 
+#### t
+```
 $ vi ansible-hosts
 [all:vars]
 ssh_key_filename="id_rsa"
@@ -75,7 +78,7 @@ sdw6-02 zk_id=2 ansible_ssh_host=192.168.0.62
 sdw6-03 zk_id=3 ansible_ssh_host=192.168.0.63
 ```
 
-
+#### t
 ```
 $ vi group_vars/kafka_servers
 package_download_path : "/tmp"
@@ -125,6 +128,7 @@ java:
 ```
 
 ## How to install Kafaka-ZKCluster
+#### t
 ```
 $ vi install-kafka.yml
 ---
@@ -141,6 +145,7 @@ $ make install
 ```
 
 ## How to uninstall Kafaka-ZKCluster
+#### t
 ```
 $ vi uninstall-kafka.yml
 ---
@@ -156,7 +161,7 @@ $ vi uninstall-kafka.yml
 $ make uninstall
 ```
 
-# Planning
+## Planning
 - Adding playbook to install and confgiure kafka / zookeeper monitor
 - Configuring Auth for Kafka UI ( Check if configuration SSL is possible? )
 - Configuring Scheme Segistry and Ssql DB for Kafka UI
