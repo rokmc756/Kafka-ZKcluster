@@ -50,7 +50,7 @@ $ git clone https://github.com/rokmc756/kafka-zkcluster
 $ cd kafka-zkcluster
 ```
 
-#### 2) Configure user password of sudo user
+#### 2) Configure user password of sudo user for Kafka's VMs
 ```
 $ vi Makefile
 ~~ snip
@@ -196,7 +196,7 @@ $ make install
 ```
 
 ## How to Destroy Kafaka-ZKCluster
-#### Configure ansible playbook to destroy Kafka-ZKCluster and UI
+#### Configure ansible playbook to destroy Kafka-ZKCluster and Kafka UI
 ```
 ---
 - hosts: monitor
