@@ -57,9 +57,9 @@
 
 - name: Set Kafka Log Directory for Topic
   file: path={{ kafka.configuration.log_dirs }}/{{ item }} state=directory owner=kafka group=kafka
-  with_items:
-    - "data1"
-    - "data2"
+  with_items: "{{ kafka.configuration.topic_dirs }}"
+  #  - "data1"
+  #  - "data2"
 
 
 - name: Set Kafka Configuration

@@ -54,9 +54,12 @@ kafka:
   download: false
   configuration:
     port: 9092
-    data_dir: /usr/local/kafka/data
     log_dirs: /usr/local/kafka/logs
     log_path: /usr/local/kafka/log
+    data_dir: /usr/local/kafka/data
+    topic_dirs:
+      - "data1"
+      - "data2"
     network_threads: 3
     disk_threads: 8
     num_partitions: 3
