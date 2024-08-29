@@ -1,8 +1,10 @@
-- name: firewall start
+- name: Start Firewall
   service: name=firewalld state=started
 
-- name: firewall stop
+
+- name: Stop Firewall
   service: name=firewalld state=stopped
 
-- name: firewall restart
+
+- name: Restart Firewall
   service: name=firewalld state=restarted

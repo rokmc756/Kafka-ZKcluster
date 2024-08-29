@@ -1,13 +1,25 @@
 ---
-# for now fail if it's not a Red Hat based system
-- name: Check OS ( GPDB )
+# For now fail if it's not a Red Hat based system
+- name: Check OS ( Kafka-UI )
   fail: msg="Not a Red Hat based system!"
   when: ansible_os_family != 'RedHat' or ansible_os_family != 'CentOS'  ansible_os_family != 'Rocky'
+
+
+- name: Set Facts for Network and Packages Informations
+  import_tasks: set-facts.yml
+  tags:
+    - install
+    - uninstall
+
 
 - name: Install Kafka UI
   import_tasks: install.yml
   tags: install
+  when: inventory_hostname in groups['monitor']
+  # when: inventory_hostname in hostvars[groups['all'][0]].ansible_hostname
+
 
 - name: Uninstall Kafka UI
   import_tasks: uninstall.yml
   tags: uninstall
+  when: inventory_hostname in groups['monitor']

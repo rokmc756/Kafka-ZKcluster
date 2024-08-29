@@ -7,13 +7,13 @@ remote_machine_password="changeme"
 rk8-master ansible_ssh_host=192.168.0.81
 
 # These are your kafka cluster nodes
-[brokers]
+[kafka_brokers]
 rk8-node01 kafka_broker_id=1 ansible_ssh_host=192.168.0.83
 rk8-node02 kafka_broker_id=2 ansible_ssh_host=192.168.0.84
 rk8-node03 kafka_broker_id=3 ansible_ssh_host=192.168.0.85
 
 # These are your zookeeper cluster nodes
-[zookeepers]
+[zk_servers]
 rk8-node01 zk_id=1 ansible_ssh_host=192.168.0.83
 rk8-node02 zk_id=2 ansible_ssh_host=192.168.0.84
 rk8-node03 zk_id=3 ansible_ssh_host=192.168.0.85

@@ -76,7 +76,7 @@ co7-node02 kafka_broker_id=2 ansible_ssh_host=192.168.0.64
 co7-node03 kafka_broker_id=3 ansible_ssh_host=192.168.0.65
 
 # These are your zookeeper cluster nodes
-[zookeepers]
+[zk_servers]
 co7-node01 zk_id=1 ansible_ssh_host=192.168.0.63
 co7-node02 zk_id=2 ansible_ssh_host=192.168.0.64
 co7-node03 zk_id=3 ansible_ssh_host=192.168.0.65

@@ -7,8 +7,10 @@
     - "2888" # Quorum?
     - "3888" # Quorum?
   ignore_errors: yes
-  notify: firewall restart
+  notify: Restart Firewall
+
 
 - name: Disable and Stop Firewalld
   service: name=firewalld enabled=no state=stopped
   ignore_errors: yes
+

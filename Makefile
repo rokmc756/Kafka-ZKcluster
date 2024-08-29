@@ -2,7 +2,7 @@
 
 USERNAME=jomoon
 COMMON="yes"
-ANSIBLE_HOST_PASS="rmsidwoalfh"
+ANSIBLE_HOST_PASS="changeme"
 ANSIBLE_TARGET_PASS="changeme"
 # include ./*.mk
 
@@ -29,7 +29,23 @@ all:
 		echo ""; \
 	done
 
+
 # - https://ansible-tutorial.schoolofdevops.com/control_structures/
+boot: role-update control-vms.yml
+	ansible-playbook --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -u ${USERNAME} control-vms.yml --extra-vars "power_state=on power_title=Power-On"
+
+shutdown: role-update control-vms.yml
+	ansible-playbook --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -u ${USERNAME} control-vms.yml --extra-vars "power_state=off power_title=Power-Off"
+
+download: role-update download-kafka.yml
+	ansible-playbook --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -u ${USERNAME} download-kafka.yml --tags="download"
+
+init: role-update init-hosts.yml
+	ansible-playbook --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -u ${USERNAME} init-hosts.yml --tags="init"
+
+uninit: role-update init-hosts.yml
+	ansible-playbook --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -u ${USERNAME} init-hosts.yml --tags="uninit"
+
 install: role-update install-kafka.yml
 	ansible-playbook --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -i ansible-hosts -u ${USERNAME} install-kafka.yml --tags="install"
 

@@ -1,0 +1,21 @@
+- hosts: localhost
+  tasks:
+    - name: Download Kafka/Zookeeper Software Binaries and Save the into Ansible Files Directory
+      become: true
+      vars:
+        kafka_download_version: "{{ kafka.major_version }}.{{ kafka.minor_version }}.{{ kafka.patch_version }}"
+        scala_version: "{{ kafka.scala.major_version }}.{{ kafka.scala.minor_version }}"
+        kafka_package: "kafka_{{ kafka.scala.major_version }}.{{ kafka.scala.minor_version }}-{{ kafka.major_version }}.{{ kafka.minor_version }}.{{ kafka.patch_version }}.tgz"
+        zookeeper_download_version: "{{ zookeeper.major_version }}.{{ zookeeper.minor_version }}.{{ zookeeper.patch_version }}"
+        zookeeper_package: "apache-zookeeper-{{ zookeeper.major_version }}.{{ zookeeper.minor_version }}.{{ zookeeper.patch_version }}-bin.tar.gz"
+        local_dir: "/home/jomoon/Kafka-ZKcluster"
+      get_url:
+        url: "{{ item.url }}"
+        dest: "{{ item.dest }}"
+      with_items:
+        - { url: "{{ kafka.download_url }}/{{ kafka_download_version }}/{{ kafka_package }}",
+            dest: "{{ local_dir }}/roles/kafka/files/{{ kafka_package }}" }
+        - { url: "{{ zookeeper.download_url }}/zookeeper-{{ zookeeper_download_version }}/{{ zookeeper_package }}",
+            dest: "{{ local_dir }}/roles/zookeeper/files/{{ zookeeper_package }}" }
+      tags: download
+

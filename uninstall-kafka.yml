@@ -1,6 +1,6 @@
 ---
 - hosts: monitor
-  remote_user: root
+  # remote_user: root
   become: true
   roles:
     - kafka-ui
@@ -8,7 +8,7 @@
     - java
 
 - hosts: brokers
-  remote_user: root
+  # remote_user: root
   become: true
   roles:
     - java

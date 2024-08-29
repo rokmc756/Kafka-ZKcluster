@@ -1,79 +1,79 @@
 #
-- name: Create zookeeper group
+- name: Create Zookeeper Group
   group: name=zookeeper state=present
 
-#
-- name: Create zookeeper user
+
+- name: Create Zookeeper User
   user: name=zookeeper group=zookeeper
 
-# Origianal zk_package_name: zookeeper-{{ zookeeper.version }}.tar.gz
-- set_fact:
-    zk_package_name: apache-zookeeper-{{ zookeeper.version }}-bin.tar.gz
-    zk_application_path: "{{ zookeeper.installation_path }}/apache-zookeeper-{{ zookeeper.version }}-bin"
 
-#
-- name: Check zookeeper package
-  stat: path={{ package_download_path }}/{{ zk_package_name }}
+# Origianal zk_package_name: zookeeper-{{ zookeeper_version }}.tar.gz
+#- set_fact:
+#    zk_package_name: apache-zookeeper-{{ zookeeper_version }}-bin.tar.gz
+#    zk_application_path: "{{ zookeeper.base_path }}/apache-zookeeper-{{ zookeeper_version }}-bin"
+
+
+- name: Check Zookeeper Package
+  stat: path={{ zookeeper.download_path }}/{{ zk_package_name }}
   register: zk_package_exists
 
-#
-- name: Download zookeeper tar if not downloaded
-  get_url: url={{ zookeeper.download_mirror }}/zookeeper-{{ zookeeper.version }}/{{ zk_package_name }} dest={{ package_download_path }}
+
+- name: Download Zookeeper Tar file if Not Downloaded
+  get_url: url={{ zookeeper.download_url }}/zookeeper-{{ zookeeper_version }}/{{ zk_package_name }} dest={{ zookeeper.download_path }}
   when: not zk_package_exists.stat.exists
 
-#
-- name: Unarchive zookeeper package
-  unarchive: src={{ package_download_path }}/{{ zk_package_name }} dest={{ zookeeper.installation_path }} copy=no
 
-#
-- name: Delete package downloaded if needed
-  file: path={{ package_download_path }}/{{ zk_package_name }} state=absent
+- name: Unarchive Zookeeper Package
+  unarchive: src={{ zookeeper.download_path }}/{{ zk_package_name }} dest={{ zookeeper.base_path }} copy=no
+
+
+- name: Delete Package Downloaded if Needed
+  file: path={{ zookeeper.download_path }}/{{ zk_package_name }} state=absent
   when: force_cleanup is defined and force_cleanup == "True"
 
-#
-- name: Check if any version of zookeeper is already linked
-  stat: path={{ zookeeper.installation_path }}/apache-zookeeper
-  register: zk_symlink_created
 
-#
+- name: Check if Any Version of Zookeeper is Already Linked
+  stat: path={{ zookeeper.base_path }}/apache-zookeeper
+  register: zk_symlink_created
 - debug: msg={{ zk_symlink_created }}
 
-#
-- name: Repoint symlink to new zookeeper version
+
+- name: Repoint Symlink to New Zookeeper Version
   become_user: root
   file:
-    dest: "{{ zookeeper.installation_path }}/apache-zookeeper"
-    src: "{{ zookeeper.installation_path }}/apache-zookeeper-{{ zookeeper.version }}-bin"
+    dest: "{{ zookeeper.base_path }}/apache-zookeeper"
+    src: "{{ zookeeper.base_path }}/apache-zookeeper-{{ zookeeper_version }}-bin"
     state: link
   when: not zk_symlink_created.stat.exists
 
-#
-- name: Set zookeeper data dir
+
+- name: Set Zookeeper Data Directory
   file: path={{ zookeeper.configuration.data_dir }} state=directory owner=zookeeper group=zookeeper
 
-#
-- name: Set zookeeper log dir
+
+- name: Set Zookeeper Log Directory
   file: path={{ zookeeper.configuration.log_path }} state=directory owner=zookeeper group=zookeeper
 
-#
-- name: Set zookeeper configuration
+
+- name: Set Zookeeper Configuration
   template: src=templates/zookeeper.configuration.j2 dest={{ zk_application_path }}/conf/zoo.cfg force=yes
   notify: Restart zookeeper
 
-#
-- name: Set zookeeper data dir
+
+- name: Set Zookeeper Data Directory
   file: path={{ zookeeper.configuration.data_dir }} state=directory owner=zookeeper group=zookeeper
 
-#
-- name: Set zookeeper myid configuration
+
+- name: Set Zookeeper myid Configuration
   template: src=templates/zookeeper.myid.j2 dest={{ zookeeper.configuration.data_dir }}/myid force=yes
   notify: Restart zookeeper
 
-#
-- name: Start zookeeper
+
+- name: Start Zookeeper
   template: src=zookeeper.systemd.j2 dest=/etc/systemd/system/zookeeper.service owner=root group=root mode=644 force=yes
 
-#
-- name: Reload systemd daemon
+
+- name: Reload Systemd Daemon
   shell: "systemctl daemon-reload"
   notify: Restart zookeeper
+

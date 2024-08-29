@@ -1,142 +1,138 @@
 ---
-#
-- name: Create kafka group
-  group: name=kafka state=present
+#- name: Create Kafka Group
+#  group: name=kafka state=present
 
-#
-- name: Create kafka user
-  user: name=kafka group=kafka
 
-#
-- set_fact:
-    kafka_package_name: kafka_{{ kafka.scala_version }}-{{ kafka.version }}.tgz
-    kafka_application_path: "{{ kafka.installation_path }}/kafka_{{ kafka.scala_version }}-{{ kafka.version }}"
+#- name: Create Kafka User
+#  user: name=kafka group=kafka
 
-#
-- name: Check kafka package
-  stat: path={{ package_download_path }}/{{ kafka_package_name }}
+
+#- set_fact:
+#    kafka_package_name: kafka_{{ kafka.scala_version }}-{{ kafka.version }}.tgz
+#    kafka_application_path: "{{ kafka.base_path }}/kafka_{{ kafka.scala_version }}-{{ kafka.version }}"
+
+
+- name: Check Kafka Package
+  stat: path={{ kafka.download_path }}/{{ kafka_package_name }}
   register: kafka_package_exists
-
-#
 - debug: msg={{ kafka_package_exists }}
 
-#
-- name: Download kafka tar if not downloaded
-  get_url: url={{ kafka.download_mirror }}/{{ kafka.version }}/{{ kafka_package_name }} dest={{ package_download_path }}
-  when: kafka_package_exists.stat.exists == false and kafka.download_kafka == true
 
-#
-- name: Copy Kafka binary from local directory, roles/kafka/files
+- name: Download Kafka Tar File if Not Downloaded
+  get_url: url={{ kafka.download_mirror }}/{{ kafka.version }}/{{ kafka_package_name }} dest={{ kafka.download_path }}
+  when: kafka_package_exists.stat.exists == false and kafka.download == true
+
+
+- name: Copy Kafka Binary from Local Directory, roles/kafka/files
   copy: src={{ kafka_package_name }} dest=/tmp/{{ kafka_package_name }} mode=0644 owner=kafka group=kafka
-  when: kafka_package_exists.stat.exists == false and kafka.download_kafka == false
+  when: kafka_package_exists.stat.exists == false and kafka.download == false
 
-#
-- name: Unarchive kafka package
-  unarchive: src={{ package_download_path }}/{{ kafka_package_name }} dest={{ kafka.installation_path }} copy=no
 
-#
-- name: Delete package downloaded if needed
-  file: path={{ package_download_path }}/{{ kafka_package_name }} state=absent
+- name: Unarchive Kafka Package
+  unarchive: src={{ kafka.download_path }}/{{ kafka_package_name }} dest={{ kafka.base_path }} copy=no
+
+
+- name: Delete Package Downloaded if Needed
+  file: path={{ kafka.download_path }}/{{ kafka_package_name }} state=absent
   when: force_cleanup is defined and force_cleanup == "True"
 
-#
-- name: Check if any version of kafka is already linked
-  stat: path={{ kafka.installation_path }}/kafka
-  register: kafka_symlink_created
 
-#
+- name: Check if Any Version of Kafka is Already Linked
+  stat: path={{ kafka.base_path }}/kafka
+  register: kafka_symlink_created
 - debug: msg={{ kafka_symlink_created }}
 
-#
-- name: Repoint symlink to new Kafka version
+
+- name: Repoint Symlink to New Kafka Version
   become_user: root
   file:
-    src: "{{ kafka.installation_path }}/kafka_{{ kafka.scala_version }}-{{ kafka.version }}"
-    dest: "{{ kafka.installation_path }}/kafka"
+    src: "{{ kafka.base_path }}/{{ kafka_file_name }}"
+    dest: "{{ kafka.base_path }}/kafka"
     state: link
   when: not kafka_symlink_created.stat.exists
 
-#
-- name: Set kafka data dir
+
+- name: Set Kafka Data Directory
   file: path={{ kafka.configuration.data_dir }} state=directory owner=kafka group=kafka
 
-#
-- name: Set kafka loggers dir
+
+- name: Set Kafka loggers Directory
   file: path={{ kafka.configuration.log_path }} state=directory owner=kafka group=kafka
 
-#
-- name: Set kafka log topic dirs
+
+- name: Set Kafka Log Directory for Topic
   file: path={{ kafka.configuration.log_dirs }}/{{ item }} state=directory owner=kafka group=kafka
   with_items:
     - "data1"
     - "data2"
 
-#
-- name: Set kafka configuration
+
+- name: Set Kafka Configuration
   template: src=templates/kafka.configuration.j2 dest={{ kafka_application_path }}/config/server.properties force=yes
   notify: Restart kafka
 
-#
-- name: Copy systemd configuration of kafka into /etc/systemd/system
+
+- name: Copy Systemd Configuration of Kafka into /etc/systemd/system
   template: src=kafka.systemd.j2 dest=/etc/systemd/system/kafka.service owner=root group=root mode=644 force=yes
 
-#
+
 ####################################################################################################
-# Install internal zookeeper
+# Install Internal Zookeeper
 ####################################################################################################
-#
-- name: Create zookeeper group
+
+- name: Create Zookeeper Group
   group: name=zookeeper state=present
   when: ( zookeeper.use_internal_zookeeper )
 
-#
-- name: Create zookeeper user
+
+- name: Create Zookeeper User
   user: name=zookeeper group=zookeeper
   when: ( zookeeper.use_internal_zookeeper )
 
-#
-- name: Set zookeeper data dir
+
+- name: Set Zookeeper Data Directory
   file: path={{ zookeeper.configuration.data_dir }} state=directory owner=zookeeper group=zookeeper
   when: ( zookeeper.use_internal_zookeeper )
 
-#
-- name: Set zookeeper log dir
+
+- name: Set Zookeeper Log Directory
   file: path={{ zookeeper.configuration.log_path }} state=directory owner=zookeeper group=zookeeper
   when: ( zookeeper.use_internal_zookeeper )
 
-#
-- name: Set zookeeper data dir
+
+- name: Set Zookeeper Data Directory
   file: path={{ zookeeper.configuration.data_dir }} state=directory owner=zookeeper group=zookeeper
   when: ( zookeeper.use_internal_zookeeper )
 
-#
-- name: Set internal zookeeper configuration
+
+- name: Set Internal Zookeeper Configuration
   template: src=templates/zookeeper.configuration.j2 dest={{ kafka_application_path }}/config/zookeeper.properties force=yes
   notify: Restart zookeeper
   when: ( zookeeper.use_internal_zookeeper )
 
-#
-- name: Set zookeeper myid configuration
+
+- name: Set Zookeeper myid Configuration
   template: src=templates/zookeeper.myid.j2 dest={{ zookeeper.configuration.data_dir }}/myid owner=zookeeper group=zookeeper mode=644 force=yes
   notify: Restart zookeeper
   when: ( zookeeper.use_internal_zookeeper )
 
-#
-- name: Replace data directory of zookeeper properties
+
+- name: Replace Data Directory of Zookeeper Properties
   replace:
-    path: "{{ zookeeper.installation_path }}/kafka/config/zookeeper.properties"
+    path: "{{ zookeeper.base_path }}/kafka/config/zookeeper.properties"
     regexp: "^(.*)dataDir=(.*)$"
     replace: "dataDir={{ zookeeper.configuration.data_dir }}"
     backup: yes
   when: ( zookeeper.use_internal_zookeeper )
 
-#
-- name: Copy systemd configuration of zookeeper into /etc/systemd/system
+
+- name: Copy Systemd Configuration of Zookeeper into /etc/systemd/system
   template: src=zookeeper.systemd.j2 dest=/etc/systemd/system/zookeeper.service owner=root group=root mode=644 force=yes
   when: ( zookeeper.use_internal_zookeeper )
 
+
 # Start services for zookeeper and kafka
-- name: Reload and start systemd service of kafka
+- name: Reload and Start Systemd Service of Kafka
   become: true
   systemd:
     daemon_reload: yes
@@ -148,8 +144,8 @@
   retries: 20
   delay: 20
 
-#
-- name: Reload and start systemd service of zookeeper
+
+- name: Reload and Start Systemd Service of Zookeeper
   become: true
   systemd:
     daemon_reload: yes
@@ -161,3 +157,4 @@
   retries: 20
   delay: 20
   when: ( zookeeper.use_internal_zookeeper )
+

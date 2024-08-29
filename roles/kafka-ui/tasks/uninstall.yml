@@ -1,7 +1,6 @@
 ---
-#
-- name: Stop and Disable  Kafka UI systemd service
-  become: yes
+- name: Stop and Disable Kafka UI Systemd Service
+  # become: yes
   systemd:
     name: kafka-ui
     enabled: no
@@ -10,9 +9,9 @@
   ignore_errors: yes
   when: inventory_hostname in groups['monitor']
 
-#
-- name: Remove config and jar files of Kafka UI
-  become: yes
+
+- name: Remove Config and Jar Files of Kafka UI
+  # become: yes
   file:
     path: "{{ item }}"
     state: absent
@@ -24,17 +23,17 @@
   ignore_errors: yes
   when: inventory_hostname in groups['monitor']
 
-#
-- name: Stop and Disable  Kafka UI systemd service
-  become: yes
+
+- name: Stop and Disable Kafka UI Systemd Service
+  # become: yes
   systemd:
     daemon_reload: yes
   register: systemd_reloaded
   when: inventory_hostname in groups['monitor']
 
-#
+
 - name: Uninstall Java RPM Package
-  become: yes
+  # become: yes
   yum:
     name: "{{ item }}"
     state: absent
@@ -52,9 +51,9 @@
     - inventory_hostname in groups['monitor']
     - install_oracle_java == false
 
-#
+
 - name: Uninstall Oracle Java RPM Package
-  become: yes
+  # become: yes
   yum:
     name: "{{ item }}"
     state: absent
@@ -65,9 +64,9 @@
     - inventory_hostname in groups['monitor']
     - install_oracle_java == true
 
-#
+
 - name: Disable Firewalld Port Policy for Kafak UI
-  become: yes
+  # become: yes
   firewalld:
     port: "{{ item }}/tcp"
     permanent: true
