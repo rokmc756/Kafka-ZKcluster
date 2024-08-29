@@ -4,14 +4,15 @@
   become: true
   roles:
     - kafka-ui
-    - firewall
-    - java
+  #  - firewall
+  #  - java
 
-- hosts: brokers
+- hosts: kafka_brokers
   # remote_user: root
   become: true
   roles:
-    - java
-    - firewall
     - zookeeper
     - kafka
+  #  - java
+  #  - firewall
+

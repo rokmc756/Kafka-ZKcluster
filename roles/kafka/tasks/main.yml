@@ -12,8 +12,14 @@
     - uninstall
 
 
+- name: Install Internal Zookeeper
+  import_tasks: install-internal-zookeeper.yml
+  tags: install
+  when: ( zookeeper.use_internal_zookeeper )
+
+
 - name: Install Kafka
-  import_tasks: install.yml
+  import_tasks: install-kafka.yml
   tags: install
 
 

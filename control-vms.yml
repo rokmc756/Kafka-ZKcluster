@@ -12,8 +12,6 @@
       loop:
         - rk9-freeipa
         - rk9-node01
-        - rk9-node02
         - rk9-node03
         - rk9-node04
         - rk9-node05
-        - rk9-node06

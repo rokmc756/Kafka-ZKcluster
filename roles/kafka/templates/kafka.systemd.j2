@@ -1,20 +1,27 @@
 [Unit]
-Description=Apache Kafka server (broker)
+Description=Apache Kafka Broker
 Documentation=http://kafka.apache.org/documentation.html
-Before=
-After=network.target
-# Requires=network.target remote-fs.target
-# After=network.target remote-fs.target zookeeper.service
-B
+# Before=
+Requires=network.target
+After=network.target remote-fs.target zookeeper.service
+
 
 [Service]
-Type=simple
+Type=forking
 User=kafka
 Group=kafka
-# Environment=JAVA_HOME=\$JAVA_HOME JMX_PORT=9997
+Restart=on-failure
+LimitNOFILE=16384:163840
+# SyslogIdentifier=kafka (%i)
+
 Environment=JMX_PORT=9997
-ExecStart=/bin/bash -c "{{ kafka_application_path }}/bin/kafka-server-start.sh {{ kafka_application_path }}/config/server.properties"
+# Environmet="KAFKA_HEAP_OPTS=-Xmx1G -Xms1G"
+# Environment="KAFKA_OPTS=-javaagent:/home/ubuntu/prometheus/jmx_prometheus_javaagent-0.15.0.jar=8080:/home/ubuntu/prometheus/kafka-connect.yml"
+
+ExecStart=/bin/bash -c "{{ kafka_application_path }}/bin/kafka-server-start.sh -daemon {{ kafka_application_path }}/config/server.properties"
 ExecStop=/bin/bash -c "{{ kafka_application_path }}/bin/kafka-server-stop.sh"
+# ExecStartPost=
+# ExecStartPre=
 
 [Install]
 WantedBy=multi-user.target

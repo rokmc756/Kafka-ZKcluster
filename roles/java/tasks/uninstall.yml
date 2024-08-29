@@ -1,14 +1,14 @@
 #- set_fact:
 #    jdk_package_name: jdk-{{ java.version }}-{{ java.platform }}.rpm
 
-#
-- name: Set package manager with auto
+
+- name: Set Package Manager with Auth
   package_facts:
     manager: "auto"
 
-#
-- name: Uninstall Java rpm package
-  yum:
+
+- name: Uninstall Java Package
+  package:
     name: "{{ item }}"
     state: absent
   with_items:
@@ -21,12 +21,13 @@
     - jdk-17
     - jdk
 
-#
-- name: "Delete a line for export $JAVA_HOME"
+
+- name: "Delete a Line to Export $JAVA_HOME"
   lineinfile:
     dest: /etc/profile.d/java_home.sh
     regexp: "^export JAVA_HOME*"
     state: absent
+
 
 #- name: Correct java version selected
 #  alternatives:

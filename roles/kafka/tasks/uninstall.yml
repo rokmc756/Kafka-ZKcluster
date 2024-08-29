@@ -1,10 +1,4 @@
 ---
-#
-- set_fact:
-    kafka_package_name: kafka_{{ kafka.scala_version }}-{{ kafka.version }}.tgz
-    kafka_application_path: "{{ kafka.installation_path }}/kafka_{{ kafka.scala_version }}-{{ kafka.version }}"
-
-# Stop Services for Kafka
 - name: Reload and Stop Systemd Service of Kafka
   become: true
   systemd:
@@ -12,7 +6,7 @@
     enabled: no
     state: stopped
 
-# Stop Internal Zookeeper Services
+
 - name: Reload and Stop Systemd Service of Internal Zookeeper
   become: true
   systemd:
@@ -21,8 +15,8 @@
     state: stopped
   when: ( zookeeper.use_internal_zookeeper )
 
-#
-- name: Delete config/log/data files for Kafka
+
+- name: Delete config/log/data Files for Kafka
   file:
     path: "{{ item }}"
     state: absent
@@ -31,18 +25,18 @@
     - "{{ kafka.configuration.log_dirs }}"
     - "{{ kafka.configuration.log_path }}"
     - "{{ kafka.configuration.data_dir }}"
-    - "{{ kafka.installation_path }}/kafka_{{ kafka.scala_version }}-{{ kafka.version }}"
-    - "{{ kafka.installation_path }}/kafka"
-    - "{{ package_download_path }}/{{ kafka_package_name }}"
+    - "{{ kafka.base_path }}/kafka_{{ scala_version }}-{{ kafka_version }}"
+    - "{{ kafka.base_path }}/kafka"
+    - "{{ kafka.download_path }}/{{ kafka_package_name }}"
     - "/etc/systemd/system/kafka.service"
 
-#
-- name: Delete config/log/data files for Internal Zookeeper
+
+- name: Delete config/log/data Files for Internal Zookeeper
   file:
     path: "{{ item }}"
     state: absent
   with_items:
-    - "{{ zookeeper.installation_path }}/kafka/config/zookeeper.properties"
+    - "{{ zookeeper.base_path }}/kafka/config/zookeeper.properties"
     - "{{ zookeeper.configuration.data_dir }}/myid"
     - "{{ zookeeper.configuration.data_dir }}"
     - "{{ zookeeper.configuration.log_path }}"
@@ -50,25 +44,26 @@
     - "/etc/systemd/system/zookeeper.service"
   when: ( zookeeper.use_internal_zookeeper )
 
-#
-- name: Reload systemd daemon
+
+- name: Reload Systemd Daemon
   systemd:
     daemon_reload: yes
 
-#
+
 - name: Delete Zookeeper Group
   group: name=zookeeper state=absent
   when: ( zookeeper.use_internal_zookeeper )
 
-#
+
 - name: Delete Zookeeper User
   user: name=zookeeper state=absent
   when: ( zookeeper.use_internal_zookeeper )
 
-#
+
 - name: Delete Kafka Group
   group: name=kafka state=present
 
-#
+
 - name: Delete Kafka User
   user: name=kafka state=present
+

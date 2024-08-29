@@ -11,7 +11,8 @@ ExecStart=/bin/bash -c "java -Dspring.config.additional-location=/root/applicati
 ExecReload=/bin/kill -s HUP $MAINPID
 KillMode=process
 Restart=no
-TimeoutSec=30
+TimeoutSec=60
+# Restart=on-failure
 
 [Install]
 WantedBy=multi-user.target

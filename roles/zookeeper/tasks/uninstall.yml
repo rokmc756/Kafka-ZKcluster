@@ -15,15 +15,16 @@
     - "{{ zookeeper.configuration.log_path }}"
     - "{{ zookeeper.configuration.data_dir }}"
     - "{{ zookeeper.configuration.data_dir }}"
-    - "{{ zookeeper.installation_path }}/apache-zookeeper-{{ zookeeper.version }}"
-    - "{{ zookeeper.installation_path }}/apache-zookeeper"
-    - "{{ package_download_path }}/{{ zk_package_name }}"
+    - "{{ zookeeper.base_path }}/apache-zookeeper-{{ zookeeper_version }}"
+    - "{{ zookeeper.base_path }}/apache-zookeeper"
+    - "{{ zookeeper.download_path }}/{{ zk_package_name }}"
     - "/etc/systemd/system/zookeeper.service"
 
 
-- name: Reload Systemd Daemon
+- name: Reload Systemd Services
   systemd:
     daemon_reload: yes
+  register: systemd_reloaded
 
 
 - name: Remove Zookeeper User

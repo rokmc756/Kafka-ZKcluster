@@ -1,0 +1,64 @@
+---
+- name: Create Zookeeper Group
+  group: name=zookeeper state=present
+  when: ( zookeeper.use_internal_zookeeper )
+
+
+- name: Create Zookeeper User
+  user: name=zookeeper group=zookeeper
+  when: ( zookeeper.use_internal_zookeeper )
+
+
+- name: Set Zookeeper Data Directory
+  file: path={{ zookeeper.configuration.data_dir }} state=directory owner=zookeeper group=zookeeper
+  when: ( zookeeper.use_internal_zookeeper )
+
+
+- name: Set Zookeeper Log Directory
+  file: path={{ zookeeper.configuration.log_path }} state=directory owner=zookeeper group=zookeeper
+  when: ( zookeeper.use_internal_zookeeper )
+
+
+- name: Set Zookeeper Data Directory
+  file: path={{ zookeeper.configuration.data_dir }} state=directory owner=zookeeper group=zookeeper
+  when: ( zookeeper.use_internal_zookeeper )
+
+
+- name: Set Internal Zookeeper Configuration
+  template: src=templates/zookeeper.configuration.j2 dest={{ kafka_application_path }}/config/zookeeper.properties force=yes
+  notify: Restart Zookeeper
+  when: ( zookeeper.use_internal_zookeeper )
+
+
+- name: Set Zookeeper myid Configuration
+  template: src=templates/zookeeper.myid.j2 dest={{ zookeeper.configuration.data_dir }}/myid owner=zookeeper group=zookeeper mode=644 force=yes
+  notify: Restart Zookeeper
+  when: ( zookeeper.use_internal_zookeeper )
+
+
+- name: Replace Data Directory of Zookeeper Properties
+  replace:
+    path: "{{ zookeeper.base_path }}/kafka/config/zookeeper.properties"
+    regexp: "^(.*)dataDir=(.*)$"
+    replace: "dataDir={{ zookeeper.configuration.data_dir }}"
+    backup: yes
+  when: ( zookeeper.use_internal_zookeeper )
+
+
+- name: Copy Systemd Configuration of Zookeeper into /etc/systemd/system
+  template: src=zookeeper.systemd.j2 dest=/etc/systemd/system/zookeeper.service owner=root group=root mode=644 force=yes
+  when: ( zookeeper.use_internal_zookeeper )
+
+
+- name: Reload and Start Systemd Service of Zookeeper
+  become_user: root
+  systemd:
+    daemon_reload: yes
+    name: zookeeper
+    enabled: yes
+    state: started
+  register: zookeeper_started
+  until: zookeeper_started is succeeded
+  retries: 20
+  delay: 20
+  when: ( zookeeper.use_internal_zookeeper )

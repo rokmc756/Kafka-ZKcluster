@@ -4,8 +4,10 @@
     msg: "Unsupported ansible_distribution: {{ ansible_distribution }}"
   when: ansible_distribution not in ['Amazon', 'CentOS', 'RedHat', 'Debian', 'Ubuntu']
 
+
 - name: Install package
   include: pkg-{{ ansible_distribution | lower }}.yml
+
 
 - name: Start SPM Monitor
   service:
@@ -15,3 +17,4 @@
 
 # java-11-openjdk
 # java-11-openjdk-devel
+

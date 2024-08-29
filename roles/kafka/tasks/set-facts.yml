@@ -4,6 +4,9 @@
     netdev0: "{{ ansible_interfaces | map('regex_replace', '^', 'ansible_') | map('extract', vars) | selectattr('ipv4', 'defined') | selectattr('ipv4.address', 'match', kafka.net.ipaddr0 ) | map(attribute='device') | first }}"
     netdev1: "{{ ansible_interfaces | map('regex_replace', '^', 'ansible_') | map('extract', vars) | selectattr('ipv4', 'defined') | selectattr('ipv4.address', 'match', kafka.net.ipaddr1 ) | map(attribute='device') | first }}"
     netdev2: "{{ ansible_interfaces | map('regex_replace', '^', 'ansible_') | map('extract', vars) | selectattr('ipv4', 'defined') | selectattr('ipv4.address', 'match', kafka.net.ipaddr2 ) | map(attribute='device') | first }}"
+  delegate_to: "{{ item }}"
+  delegate_facts: true
+  with_items: "{{ groups['all'] }}"
 
 
 - name: Get IP Address from Network Device Name
@@ -11,6 +14,9 @@
     ipaddr0: "{{ hostvars[inventory_hostname]['ansible_'~netdev0].ipv4.address }}"
     ipaddr1: "{{ hostvars[inventory_hostname]['ansible_'~netdev1].ipv4.address }}"
     ipaddr2: "{{ hostvars[inventory_hostname]['ansible_'~netdev1].ipv4.address }}"
+  delegate_to: "{{ item }}"
+  delegate_facts: true
+  with_items: "{{ groups['all'] }}"
 
 
 - name: Define Fact for Kafka/Zookeeper Version
@@ -18,6 +24,10 @@
     scala_version: "{{ kafka.scala.major_version}}.{{ kafka.scala.minor_version }}"
     kafka_version: "{{ kafka.major_version }}.{{ kafka.minor_version }}.{{ kafka.patch_version }}"
     zookeeper_version: "{{ zookeeper.major_version }}.{{ zookeeper.minor_version }}.{{ zookeeper.patch_version }}"
+  delegate_to: "{{ item }}"
+  delegate_facts: true
+  with_items: "{{ groups['all'] }}"
+
 
 
 - name: Set Kafka/Zookeeper Package Name and Application Path
@@ -28,11 +38,17 @@
     kafka_application_path: "{{ kafka.base_path }}/kafka_{{ scala_version }}-{{ kafka_version }}"
     zk_package_name: apache-zookeeper-{{ zookeeper_version }}-bin.tar.gz
     zk_application_path: "{{ zookeeper.base_path }}/apache-zookeeper-{{ zookeeper_version }}-bin"
+  delegate_to: "{{ item }}"
+  delegate_facts: true
+  with_items: "{{ groups['all'] }}"
+
 
 
 - name: Set Default Network Device and Address
   set_fact:
     _netdev: "{{ netdev0 }}"
     _ipaddr: "{{ ipaddr0 }}"
-
+  delegate_to: "{{ item }}"
+  delegate_facts: true
+  with_items: "{{ groups['all'] }}"
 

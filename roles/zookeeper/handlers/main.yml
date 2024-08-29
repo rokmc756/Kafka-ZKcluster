@@ -1,11 +1,10 @@
-#
-- name: Start zookeeper
+- name: Start Zookeeper
   service: name=zookeeper state=started enabled=yes
 
-#
-- name: Stop zookeeper
+
+- name: Stop Zookeeper
   service: name=zookeeper state=stopped enabled=yes
 
-#
-- name: Restart zookeeper
+
+- name: Restart Zookeeper
   service: name=zookeeper state=restarted enabled=yes

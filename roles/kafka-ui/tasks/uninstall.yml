@@ -24,7 +24,7 @@
   when: inventory_hostname in groups['monitor']
 
 
-- name: Stop and Disable Kafka UI Systemd Service
+- name: Reload Systemd Services
   # become: yes
   systemd:
     daemon_reload: yes

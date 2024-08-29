@@ -17,4 +17,3 @@ rk9-node05 kafka_broker_id=3 ansible_ssh_host=192.168.0.75
 rk9-node03 zk_id=1 ansible_ssh_host=192.168.0.73
 rk9-node04 zk_id=2 ansible_ssh_host=192.168.0.74
 rk9-node05 zk_id=3 ansible_ssh_host=192.168.0.75
-

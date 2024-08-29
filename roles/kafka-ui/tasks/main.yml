@@ -12,11 +12,16 @@
     - uninstall
 
 
-- name: Install Kafka UI
-  import_tasks: install.yml
+- name: Install Java
+  import_tasks: install-java.yml
   tags: install
   when: inventory_hostname in groups['monitor']
-  # when: inventory_hostname in hostvars[groups['all'][0]].ansible_hostname
+
+
+- name: Install Kafka UI
+  import_tasks: install-kafka-ui.yml
+  tags: install
+  when: inventory_hostname in groups['monitor']
 
 
 - name: Uninstall Kafka UI

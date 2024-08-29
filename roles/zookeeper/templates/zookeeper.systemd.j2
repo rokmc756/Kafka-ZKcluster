@@ -1,7 +1,8 @@
 [Unit]
 Description=Zookeeper
-Before=
-After=network.target
+Requires=network.target
+Before=kafka.service
+After=network.target remote-fs.target
 
 [Service]
 Type=forking
