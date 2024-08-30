@@ -4,7 +4,7 @@ remote_machine_username="jomoon"
 remote_machine_password="changeme"
 
 [monitor]
-rk8-node01 ansible_ssh_host=192.168.0.71
+rk9-node01 ansible_ssh_host=192.168.0.71
 
 # These are your kafka cluster nodes
 [kafka_brokers]

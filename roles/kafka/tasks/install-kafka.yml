@@ -85,3 +85,7 @@
   with_items:
     - "/home/{{ kafka.user }}/.bashrc"
     - "/root/.bashrc"
+
+
+# pi3 install kafka-python
+# https://akpolatcem.medium.com/apache-kafka-how-to-create-a-kafka-consumer-and-producer-using-python-53883933ad3f

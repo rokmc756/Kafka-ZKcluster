@@ -1,0 +1,22 @@
+#!/usr/bin/env python3
+
+from kafka import KafkaProducer
+from kafka.errors import KafkaError
+import logging as log
+producer = KafkaProducer(bootstrap_servers=['192.168.0.73:9092'])
+future = producer.send('mytopic', b'raw_bytes')
+
+# Block for 'synchronous' sends
+try:
+    record_metadata = future.get(timeout=10)
+except KafkaError:
+    # Decide what to do if produce request failed...
+    log.exception()
+    pass
+# Successful result returns assigned partition and offset
+print (record_metadata.topic)
+print (record_metadata.partition)
+print (record_metadata.offset)
+
+# https://akpolatcem.medium.com/apache-kafka-how-to-create-a-kafka-consumer-and-producer-using-python-53883933ad3f
+

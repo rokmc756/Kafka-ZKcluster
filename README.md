@@ -271,7 +271,7 @@ $ make uninit
 
 
 ## Kafka Command Examples
-- Check the List of Kafka Broker when using Independent Zookeeper
+- Check the List of Kafka Broker when using Independent Zookeeper. In case of using Dependent Zookeeper inside of Kafe zookeeper-shell.sh could be used instead of zkCli.sh.
 ~~~
 $ zkCli.sh -server localhost:2181 ls /kafka/brokers/ids
 ~~ snip
@@ -303,6 +303,11 @@ Created topic numtest.
 
 $ kafka-topics.sh --create --bootstrap-server localhost:9092 --replication-factor 1 --partitions 1 --topic mytopic
 Created topic numtest.
+~~~
+
+- Increase the Number of Partitons for Topic
+~~~
+$ kafka-topics.sh --alter --partitions 7 --topic test --bootstrap-server localhost:9092
 ~~~
 
 - Describe the Topic

@@ -8,7 +8,7 @@
         password: "{{ vmware.esxi_password }}"
         validate_certs: false
         name: "{{ item }}"
-        state: "powered-{{ power_state}}"
+        state: "{{ power_state }}"
       loop:
         - rk9-freeipa
         - rk9-node01
