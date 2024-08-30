@@ -73,6 +73,8 @@ kafka_ui:
   port: 8080
   oracle_java: false
   download: false
+  download_url: "https://github.com/provectus/kafka-ui/releases/download"
+  # https://github.com/provectus/kafka-ui/releases/download/v0.7.2/kafka-ui-api-v0.7.2.jar
 
 
 jdk:

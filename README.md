@@ -209,6 +209,11 @@ kafka_ui:
 ~~ snip
 ```
 
+#### 9) Download All Software Binary and Save it to the role/XXXX/files Directory
+```
+$ make download
+```
+
 ## How to Deploy Kafaka-ZKCluster
 #### Configure ansible playbook to deploy Kafka-ZKCluster and UI
 ```
