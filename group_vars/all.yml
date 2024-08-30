@@ -72,6 +72,7 @@ kafka_ui:
   jmx_port: 9997
   port: 8080
   oracle_java: false
+  download: false
 
 
 jdk:
@@ -87,6 +88,7 @@ jdk:
     major_version: 13
     minor_version: 0
     patch_version: 2
+    download: false
 
 
 # oracle:

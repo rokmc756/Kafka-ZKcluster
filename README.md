@@ -13,6 +13,7 @@ Additionally systemd configuration files for zookeeper and kafka has been change
 ## Supported Kafka and Zookeeper version
 * Kafka
 * Zookeeper
+* Kafka UI
 
 ## Supported Platform and OS
 * Virtual Machines
