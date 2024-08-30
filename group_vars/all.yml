@@ -132,14 +132,19 @@ jdk:
     minor_version: 0
     patch_version: 2
 
-# jvm_home: "/usr/lib/jvm"
-# jdk.oracle.install: false
-# oracle_java_version: "13.0.2"
+
+# oracle:
+#  version: 8u101
+#  installation_path: /usr/java/jdk1.8.0_101
+#  build: b13
+#  platform: x86_64
+#  priority: 100
+#  download_mirror: http://download.oracle.com/otn-pub/java/jdk
+#  download_cookies: "Cookie: gpw_e24=http%3A%2F%2Fwww.oracle.com%2F; oraclelicense=accept-securebackup-cookie"
 
 
 vmware:
   esxi_hostname: "192.168.0.231"
   esxi_username: "root"
   esxi_password: "Changeme34#$"
-
 
