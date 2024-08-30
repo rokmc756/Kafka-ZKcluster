@@ -1,14 +1,3 @@
-- name: Set Firewalld Port Policy
-  firewalld:
-    port: "{{ item }}/tcp"
-    permanent: true
-    state: enabled
-    immediate: yes
-  with_items:
-    - "{{ kafka_ui_port }}"
-  when:  inventory_hostname in groups['monitor']
-
-
 - name: Check if Java RPM Package is installed
   package_facts:
     manager: "auto"

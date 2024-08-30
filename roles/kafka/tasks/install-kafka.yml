@@ -48,23 +48,20 @@
 
 
 - name: Set Kafka Data Directory
-  file: path={{ kafka.configuration.data_dir }} state=directory owner=kafka group=kafka
+  file: path={{ kafka.config.data_dir }} state=directory owner=kafka group=kafka
 
 
 - name: Set Kafka loggers Directory
-  file: path={{ kafka.configuration.log_path }} state=directory owner=kafka group=kafka
+  file: path={{ kafka.config.log_path }} state=directory owner=kafka group=kafka
 
 
 - name: Set Kafka Log Directory for Topic
-  file: path={{ kafka.configuration.log_dirs }}/{{ item }} state=directory owner=kafka group=kafka
-  with_items: "{{ kafka.configuration.topic_dirs }}"
-  #  - "data1"
-  #  - "data2"
+  file: path={{ kafka.config.log_dirs }}/{{ item }} state=directory owner=kafka group=kafka
+  with_items: "{{ kafka.config.topic_dirs }}"
 
 
 - name: Set Kafka Configuration
-  template: src=templates/kafka.configuration.j2 dest={{ kafka_application_path }}/config/server.properties force=yes
-  notify: Restart Kafka
+  template: src=templates/kafka.config.j2 dest={{ kafka_application_path }}/config/server.properties force=yes
 
 
 - name: Copy Systemd Configuration of Kafka into /etc/systemd/system
@@ -72,14 +69,10 @@
 
 
 - name: Reload and Start Kafka Systemd Service
-  become: true
+  become_user: root
   systemd:
-    daemon_reload: yes
+    daemon-reload: yes
     name: kafka
     enabled: yes
     state: started
-  register: start_kafka
-  until: start_kafka
-  retries: 10
-  delay: 10
-
+  register: start_kafka_service

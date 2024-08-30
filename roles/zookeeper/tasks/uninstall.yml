@@ -10,11 +10,11 @@
     path: "{{ item }}"
     state: absent
   with_items:
-    - "{{ zookeeper.configuration.data_dir }}/myid"
+    - "{{ zookeeper.config.data_dir }}/myid"
     - "{{ zk_application_path }}/conf/zoo.cfg"
-    - "{{ zookeeper.configuration.log_path }}"
-    - "{{ zookeeper.configuration.data_dir }}"
-    - "{{ zookeeper.configuration.data_dir }}"
+    - "{{ zookeeper.config.log_path }}"
+    - "{{ zookeeper.config.data_dir }}"
+    - "{{ zookeeper.config.data_dir }}"
     - "{{ zookeeper.base_path }}/apache-zookeeper-{{ zookeeper_version }}"
     - "{{ zookeeper.base_path }}/apache-zookeeper"
     - "{{ zookeeper.download_path }}/{{ zk_package_name }}"

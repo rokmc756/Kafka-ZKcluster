@@ -1,0 +1,59 @@
+- name: Check if Java RPM Package is installed
+  package_facts:
+    manager: "auto"
+
+
+- name: Install Java RPM Package for RHEL/CentOS/Rocky 8 and higher versions
+  yum:
+    name: "{{ item }}"
+    state: present
+  with_items: "{{ rh9_java_pkgs }}"
+  when:
+    - hostvars[inventory_hostname].ansible_distribution_major_version|int >= 8
+    - jdk.oracle.install == false
+
+
+- name: Install Java RPM Package for RHEL/CentOS/Rocky 7 and lower versions
+  yum:
+    name: "{{ item }}"
+    state: present
+  with_items: "{{ rh7_java_pkgs }}"
+  when:
+    - hostvars[inventory_hostname].ansible_distribution_major_version|int < 8
+    - jdk.oracle.install == false
+
+
+- name: Copy Oracle JAVA RPM package
+  copy:
+    src: jdk-{{ oracle_java_version }}_linux-x64_bin.rpm
+    dest: /root/jdk-{{ oracle_java_version }}_linux-x64_bin.rpm
+    mode: 0644
+    owner: root
+    group: root
+  when:
+    - hostvars[inventory_hostname].ansible_distribution_major_version|int <= 8
+    - jdk.oracle.install == true
+
+
+- name: Install Oracle Java RPM package
+  yum:
+    name: /root/jdk-{{ oracle_java_version }}_linux-x64_bin.rpm
+    state: present
+    disable_gpg_check: yes
+  async: 360
+  poll: 5
+  when:
+    - hostvars[inventory_hostname].ansible_distribution_major_version|int <= 8
+    - jdk.oracle.install == true
+
+
+#- name: Download JDK Package if Not Downloaded
+#  get_url: url={{ java.download_mirror }}/{{ java.version }}-{{ java.build }}/{{ jdk_package_name }} dest={{ package_download_path }} headers={{ java.download_cookies }}
+#  when: jdk.oracle.install == true and not jdk_package_exists.stat.exists
+
+
+#- name: Make Java System Alternative
+#  priority parameter its supported in Ansible > 2.2
+#  alternatives: name=java path={{ java.installation_path }}/bin/java link=/usr/bin/java
+#  when: jdk.oracle.install == true and not jdk_package_exists.stat.exists
+

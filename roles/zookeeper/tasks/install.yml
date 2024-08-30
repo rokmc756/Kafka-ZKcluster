@@ -41,24 +41,24 @@
 
 
 - name: Set Zookeeper Data Directory
-  file: path={{ zookeeper.configuration.data_dir }} state=directory owner=zookeeper group=zookeeper
+  file: path={{ zookeeper.config.data_dir }} state=directory owner=zookeeper group=zookeeper
 
 
 - name: Set Zookeeper Log Directory
-  file: path={{ zookeeper.configuration.log_path }} state=directory owner=zookeeper group=zookeeper
+  file: path={{ zookeeper.config.log_path }} state=directory owner=zookeeper group=zookeeper
 
 
 - name: Set Zookeeper Configuration
-  template: src=templates/zookeeper.configuration.j2 dest={{ zk_application_path }}/conf/zoo.cfg force=yes
+  template: src=templates/zookeeper.config.j2 dest={{ zk_application_path }}/conf/zoo.cfg force=yes
   notify: Restart Zookeeper
 
 
 - name: Set Zookeeper Data Directory
-  file: path={{ zookeeper.configuration.data_dir }} state=directory owner=zookeeper group=zookeeper
+  file: path={{ zookeeper.config.data_dir }} state=directory owner=zookeeper group=zookeeper
 
 
 - name: Set Zookeeper myid Configuration
-  template: src=templates/zookeeper.myid.j2 dest={{ zookeeper.configuration.data_dir }}/myid force=yes
+  template: src=templates/zookeeper.myid.j2 dest={{ zookeeper.config.data_dir }}/myid force=yes
   notify: Restart Zookeeper
 
 

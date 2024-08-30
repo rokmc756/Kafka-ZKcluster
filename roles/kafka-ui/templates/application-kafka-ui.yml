@@ -5,7 +5,7 @@ kafka:
       bootstrapServers: {{ hostvars[server][_netdev]['ipv4']['address'] }}:9092
       zookeeper: {{ hostvars[server][_netdev]['ipv4']['address'] }}:2181
       metrics:
-        port: {{ jmx_port }}
+        port: {{ kafka_ui.jmx_port }}
         type: JMX
 {% endfor %}
 #      schemaRegistry: http://192.168.0.173:8085

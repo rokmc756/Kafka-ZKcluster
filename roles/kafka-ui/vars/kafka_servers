@@ -2,7 +2,7 @@ webview:
   version: 2.5.1
   installation_path: /usr/local
   download_mirror: https://github.com/SourceLabOrg/kafka-webview/releases/download
-  configuration:
+  config:
     port: 8080
     data_dir: /var/lib/kafka-webview
     log_dirs: /tmp/lib/kafka-webview-logs

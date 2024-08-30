@@ -1,6 +1,6 @@
 ---
 # For now fail if it's not a Red Hat based system
-- name: Check OS ( Kafka-UI )
+- name: Check OS ( Kafka Web UI )
   fail: msg="Not a Red Hat based system!"
   when: ansible_os_family != 'RedHat' or ansible_os_family != 'CentOS'  ansible_os_family != 'Rocky'
 
@@ -12,14 +12,8 @@
     - uninstall
 
 
-- name: Install Java
-  import_tasks: install-java.yml
-  tags: install
-  when: inventory_hostname in groups['monitor']
-
-
 - name: Install Kafka UI
-  import_tasks: install-kafka-ui.yml
+  import_tasks: install.yml
   tags: install
   when: inventory_hostname in groups['monitor']
 
@@ -28,3 +22,4 @@
   import_tasks: uninstall.yml
   tags: uninstall
   when: inventory_hostname in groups['monitor']
+

@@ -22,9 +22,9 @@
     state: absent
   with_items:
     - "{{ kafka_application_path }}/config/server.properties"
-    - "{{ kafka.configuration.log_dirs }}"
-    - "{{ kafka.configuration.log_path }}"
-    - "{{ kafka.configuration.data_dir }}"
+    - "{{ kafka.config.log_dirs }}"
+    - "{{ kafka.config.log_path }}"
+    - "{{ kafka.config.data_dir }}"
     - "{{ kafka.base_path }}/kafka_{{ scala_version }}-{{ kafka_version }}"
     - "{{ kafka.base_path }}/kafka"
     - "{{ kafka.download_path }}/{{ kafka_package_name }}"
@@ -37,10 +37,10 @@
     state: absent
   with_items:
     - "{{ zookeeper.base_path }}/kafka/config/zookeeper.properties"
-    - "{{ zookeeper.configuration.data_dir }}/myid"
-    - "{{ zookeeper.configuration.data_dir }}"
-    - "{{ zookeeper.configuration.log_path }}"
-    - "{{ zookeeper.configuration.data_dir }}"
+    - "{{ zookeeper.config.data_dir }}/myid"
+    - "{{ zookeeper.config.data_dir }}"
+    - "{{ zookeeper.config.log_path }}"
+    - "{{ zookeeper.config.data_dir }}"
     - "/etc/systemd/system/zookeeper.service"
   when: ( zookeeper.use_internal_zookeeper )
 

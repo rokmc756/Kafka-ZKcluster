@@ -1,8 +1,18 @@
-- name: start kafka-webview
+- name: Start Kafka Webview
   service: name=kafka-webview state=started enabled=yes
 
-- name: stop kafka-webview
+- name: Stop Kafka Webview
   service: name=kafka-webview state=stopped enabled=yes
 
-- name: restart kafka-webview
+- name: Restart Kafka Webview
   service: name=kafka-webview state=restarted enabled=yes
+
+- name: Start Kafka Web UI
+  service: name=kafka-ui state=started enabled=yes
+
+- name: Stop Kafka Web UI
+  service: name=kafka-ui state=stopped enabled=yes
+
+- name: Restart Kafka Web UI
+  service: name=kafka-ui state=restarted enabled=yes
+

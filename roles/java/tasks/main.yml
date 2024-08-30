@@ -6,7 +6,12 @@
 
 
 - name: Install Java
-  import_tasks: install.yml
+  import_tasks: install-java.yml
+  tags: install
+
+
+- name: Config Java
+  import_tasks: config-java.yml
   tags: install
 
 

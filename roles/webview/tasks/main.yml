@@ -110,8 +110,8 @@
   become: yes
   become_user: root
   file:
-    src: "{{ webview.installation_path }}/kakfa-webview-bin-{{ webview.version }}"
-    dest: "{{ webview.installation_path }}/kafka-webview"
+    src: "{{ webview.base_path }}/kakfa-webview-bin-{{ webview.version }}"
+    dest: "{{ webview.base_path }}/kafka-webview"
     state: link
   when: not webview_symlink_created.stat.exists
 

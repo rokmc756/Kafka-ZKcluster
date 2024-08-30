@@ -1,0 +1,12 @@
+tickTime={{ zookeeper.config.tick_time }}
+dataDir={{ zookeeper.config.data_dir }}
+clientPort={{ zookeeper.config.port }}
+initLimit={{ zookeeper.config.init_limit }}
+syncLimit={{ zookeeper.config.sync_limit }}
+{% for server in groups["zk_servers"] %}
+{% if server == inventory_hostname %}
+server.{{ loop.index }}=0.0.0.0:2888:3888
+{% else %}
+server.{{ loop.index }}={{ server }}:2888:3888
+{% endif %}
+{% endfor %}

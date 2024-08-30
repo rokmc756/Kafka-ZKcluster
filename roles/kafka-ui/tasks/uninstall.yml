@@ -1,6 +1,5 @@
 ---
 - name: Stop and Disable Kafka UI Systemd Service
-  # become: yes
   systemd:
     name: kafka-ui
     enabled: no
@@ -11,68 +10,32 @@
 
 
 - name: Remove Config and Jar Files of Kafka UI
-  # become: yes
   file:
     path: "{{ item }}"
     state: absent
   with_items:
     - "/var/log/kafka-ui.log"
-    - "/etc/systemd/system/kafka-ui.service"
     - "/root/application-kafka-ui.yml"
-    - "/root/kafka-ui-api-v{{ kafka_ui_api_version }}.jar"
+    - "/root/kafka-ui-api-v{{ kafka_ui.api_version }}.jar"
+    - "/etc/systemd/system/kafka-ui.service"
   ignore_errors: yes
   when: inventory_hostname in groups['monitor']
 
 
-- name: Reload Systemd Services
-  # become: yes
-  systemd:
-    daemon_reload: yes
-  register: systemd_reloaded
-  when: inventory_hostname in groups['monitor']
-
-
-- name: Uninstall Java RPM Package
-  # become: yes
-  yum:
-    name: "{{ item }}"
-    state: absent
-  with_items:
-    - java-1.8.0-openjdk
-    - java-1.8.0-openjdk-devel
-    - java-11-openjdk
-    - java-11-openjdk-devel
-    - java-17-openjdk
-    - java-17-openjdk-devel
-    - jdk-17
-    - jdk
-  when:
-    - hostvars[inventory_hostname].ansible_distribution_major_version|int >= 8
-    - inventory_hostname in groups['monitor']
-    - install_oracle_java == false
-
-
-- name: Uninstall Oracle Java RPM Package
-  # become: yes
-  yum:
-    name: "{{ item }}"
-    state: absent
-  with_items:
-    - jdk-17
-  when:
-    - hostvars[inventory_hostname].ansible_distribution_major_version|int <= 8
-    - inventory_hostname in groups['monitor']
-    - install_oracle_java == true
-
-
 - name: Disable Firewalld Port Policy for Kafak UI
-  # become: yes
   firewalld:
     port: "{{ item }}/tcp"
     permanent: true
     state: disabled
     immediate: yes
   with_items:
-    - "{{ kafka_ui_port }}"
+    - "{{ kafka_ui.port }}"
+  when: inventory_hostname in groups['monitor']
+
+
+- name: Reload Systemd Services
+  systemd:
+    daemon_reload: yes
+  register: systemd_reloaded
   when: inventory_hostname in groups['monitor']
 

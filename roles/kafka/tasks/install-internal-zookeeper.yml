@@ -10,28 +10,28 @@
 
 
 - name: Set Zookeeper Data Directory
-  file: path={{ zookeeper.configuration.data_dir }} state=directory owner=zookeeper group=zookeeper
+  file: path={{ zookeeper.config.data_dir }} state=directory owner=zookeeper group=zookeeper
   when: ( zookeeper.use_internal_zookeeper )
 
 
 - name: Set Zookeeper Log Directory
-  file: path={{ zookeeper.configuration.log_path }} state=directory owner=zookeeper group=zookeeper
+  file: path={{ zookeeper.config.log_path }} state=directory owner=zookeeper group=zookeeper
   when: ( zookeeper.use_internal_zookeeper )
 
 
 - name: Set Zookeeper Data Directory
-  file: path={{ zookeeper.configuration.data_dir }} state=directory owner=zookeeper group=zookeeper
+  file: path={{ zookeeper.config.data_dir }} state=directory owner=zookeeper group=zookeeper
   when: ( zookeeper.use_internal_zookeeper )
 
 
 - name: Set Internal Zookeeper Configuration
-  template: src=templates/zookeeper.configuration.j2 dest={{ kafka_application_path }}/config/zookeeper.properties force=yes
+  template: src=templates/zookeeper.config.j2 dest={{ kafka_application_path }}/config/zookeeper.properties force=yes
   notify: Restart Zookeeper
   when: ( zookeeper.use_internal_zookeeper )
 
 
 - name: Set Zookeeper myid Configuration
-  template: src=templates/zookeeper.myid.j2 dest={{ zookeeper.configuration.data_dir }}/myid owner=zookeeper group=zookeeper mode=644 force=yes
+  template: src=templates/zookeeper.myid.j2 dest={{ zookeeper.config.data_dir }}/myid owner=zookeeper group=zookeeper mode=644 force=yes
   notify: Restart Zookeeper
   when: ( zookeeper.use_internal_zookeeper )
 
@@ -40,7 +40,7 @@
   replace:
     path: "{{ zookeeper.base_path }}/kafka/config/zookeeper.properties"
     regexp: "^(.*)dataDir=(.*)$"
-    replace: "dataDir={{ zookeeper.configuration.data_dir }}"
+    replace: "dataDir={{ zookeeper.config.data_dir }}"
     backup: yes
   when: ( zookeeper.use_internal_zookeeper )
 

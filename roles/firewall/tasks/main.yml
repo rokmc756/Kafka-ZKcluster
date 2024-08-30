@@ -5,12 +5,13 @@
   when: ansible_os_family != 'RedHat' or ansible_os_family != 'CentOS'  ansible_os_family != 'Rocky'
 
 
-- name: Install Firewalld
-  import_tasks: install.yml
+- name: Enable Firewalld
+  import_tasks: enable-kafka-firewall.yml
   tags: install
 
 
-- name: Uninstall Firewalld
-  import_tasks: uninstall.yml
+- name: Disable Firewalld
+  import_tasks: disable-kafka-firewall.yml
   tags: uninstall
+
 

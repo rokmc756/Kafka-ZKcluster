@@ -6,13 +6,12 @@ After=kafka.service syslog.target network.target
 Type=simple
 User=root
 Group=root
-Environment=""
-ExecStart=/bin/bash -c "java -Dspring.config.additional-location=/root/application-kafka-ui.yml -jar /root/kafka-ui-api-v{{ kafka_ui_api_version }}.jar > /var/log/kafka-ui.log 2>&1"
+# Environment=""
+ExecStart=/bin/bash -c "java -Dspring.config.additional-location=/root/application-kafka-ui.yml -jar /root/kafka-ui-api-v{{ kafka_ui.api_version }}.jar > /var/log/kafka-ui.log 2>&1"
 ExecReload=/bin/kill -s HUP $MAINPID
 KillMode=process
 Restart=no
 TimeoutSec=60
-# Restart=on-failure
 
 [Install]
 WantedBy=multi-user.target

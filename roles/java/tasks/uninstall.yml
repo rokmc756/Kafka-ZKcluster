@@ -1,25 +1,37 @@
-#- set_fact:
-#    jdk_package_name: jdk-{{ java.version }}-{{ java.platform }}.rpm
-
-
 - name: Set Package Manager with Auth
   package_facts:
     manager: "auto"
 
 
-- name: Uninstall Java Package
-  package:
+- name: Uninstall Java RPM Package for RHEL/CentOS/Rocky 8 and higher versions
+  yum:
     name: "{{ item }}"
     state: absent
-  with_items:
-    - java-1.8.0-openjdk
-    - java-1.8.0-openjdk-devel
-    - java-11-openjdk
-    - java-11-openjdk-devel
-    - java-17-openjdk
-    - java-17-openjdk-devel
-    - jdk-17
-    - jdk
+  with_items: "{{ rh9_java_pkgs }}"
+  when:
+    - hostvars[inventory_hostname].ansible_distribution_major_version|int >= 8
+    - jdk.oracle.install == false
+
+
+- name: Uninstall Java RPM Package for RHEL/CentOS/Rocky 7 and lower versions
+  yum:
+    name: "{{ item }}"
+    state: absent
+  with_items: "{{ rh7_java_pkgs }}"
+  when:
+    - hostvars[inventory_hostname].ansible_distribution_major_version|int < 8
+    - jdk.oracle.install == false
+
+
+- name: Uninstall Oracle Java RPM package
+  package:
+    name: jdk-{{ jdk.oracle.major_version }}
+    state: absent
+  async: 360
+  poll: 5
+  when:
+    - hostvars[inventory_hostname].ansible_distribution_major_version|int <= 8
+    - jdk.oracle.install == true
 
 
 - name: "Delete a Line to Export $JAVA_HOME"
@@ -38,3 +50,4 @@
 #    # path: /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.352.b08-2.el9_0.x86_64/bin/java
 #    # path: /usr/lib/jvm/java-11-openjdk-11.0.ea.28-7.el7.x86_64/bin/java
 #    # path: /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.181-7.b13.el7.x86_64/bin/java
+

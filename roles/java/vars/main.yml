@@ -1,7 +1,10 @@
 ---
-jvm_home: "/usr/lib/jvm"
-install_oracle_java: false
-oracle_java_version: "13.0.2"
+# oracle_java_version: "{{ jdk.oracle.major_version}},{{ jdk.oracle.minor_version}},{{ jdk.oracle.patch_version}}"
+
+
+# jvm_home: "/usr/lib/jvm"
+# install_oracle_java: false
+# oracle_java_version: "13.0.2"
 
 # oralce_java_version: 17
 # java:

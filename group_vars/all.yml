@@ -52,7 +52,7 @@ kafka:
   download_url: http://apache.rediris.es/kafka
   download_path: /tmp
   download: false
-  configuration:
+  config:
     port: 9092
     log_dirs: /usr/local/kafka/logs
     log_path: /usr/local/kafka/log
@@ -93,7 +93,7 @@ zookeeper:
   download_url: http://apache.rediris.es/zookeeper
   download_path: /tmp
   download: false
-  configuration:
+  config:
     port: 2181
     log_path: /usr/local/apache-zookeeper/log
     data_dir: /usr/local/apache-zookeeper/data
@@ -111,6 +111,13 @@ zookeeper:
     ipaddr2: "192.168.2.7"
 
 
+kafka_ui:
+  api_version: "0.7.2"
+  jmx_port: 9997
+  port: 8080
+  oracle_java: false
+
+
 jdk:
   oss:
     install: true
@@ -118,21 +125,21 @@ jdk:
     major_version: 1
     minor_version: 8
     patch_version: 0
-    pkgs:
-      - "java-1.8.0-openjdk"
-      - "java-1.8.0-openjdk-devel"
   oracle:
     install: false
     jvm_home: "/usr/lib/jvm"
-    major_version: 1
-    minor_version: 8
-    patch_version: 0
-    pkgs:
-      - "java-1.8.0-openjdk"
-      - "java-1.8.0-openjdk-devel"
+    major_version: 13
+    minor_version: 0
+    patch_version: 2
+
+# jvm_home: "/usr/lib/jvm"
+# jdk.oracle.install: false
+# oracle_java_version: "13.0.2"
 
 
 vmware:
   esxi_hostname: "192.168.0.231"
   esxi_username: "root"
   esxi_password: "Changeme34#$"
+
+
