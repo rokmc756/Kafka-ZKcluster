@@ -45,8 +45,8 @@ Configure Yum / Local & EPEL Repostiory
 ## How to install and confgiure Kafaka-ZKCluster
 #### 1) Clone playbook from github and move installation directory
 ```
-$ git clone https://github.com/rokmc756/kafka-zkcluster
-$ cd kafka-zkcluster
+$ git clone https://github.com/rokmc756/Kafka-ZKcluster
+$ cd Kafka-ZKcluster
 ```
 
 #### 2) Configure user password of sudo user for Kafka's VMs
