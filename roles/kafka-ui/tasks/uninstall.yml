@@ -13,12 +13,12 @@
   file:
     path: "{{ item }}"
     state: absent
+  ignore_errors: yes
   with_items:
     - "/var/log/kafka-ui.log"
     - "/root/application-kafka-ui.yml"
     - "/root/kafka-ui-api-v{{ kafka_ui.api_version }}.jar"
     - "/etc/systemd/system/kafka-ui.service"
-  ignore_errors: yes
   when: inventory_hostname in groups['monitor']
 
 
@@ -28,6 +28,7 @@
     permanent: true
     state: disabled
     immediate: yes
+  ignore_errors: yes
   with_items:
     - "{{ kafka_ui.port }}"
   when: inventory_hostname in groups['monitor']
@@ -37,5 +38,6 @@
   systemd:
     daemon_reload: yes
   register: systemd_reloaded
+  ignore_errors: yes
   when: inventory_hostname in groups['monitor']
 

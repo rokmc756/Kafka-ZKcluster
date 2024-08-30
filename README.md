@@ -54,7 +54,7 @@ $ cd Kafka-ZKcluster
 $ vi Makefile
 ~~ snip
 ANSIBLE_HOST_PASS="changeme"  # It should be changed with password of user in ansible host that gpfarmer would be run.
-ANSIBLE_TARGET_PASS="changeme"  # It should be changed with password of sudo user in managed nodes that gpdb would be installed.
+ANSIBLE_TARGET_PASS="changeme"  # It should be changed with password of sudo user in managed nodes that kafka would be installed.
 ~~ snip
 ```
 
@@ -264,6 +264,107 @@ $ make uninstall
 
 $ make uninit
 ```
+
+## Reference
+- https://github.com/sleighzy/ansible-kafka
+- https://github.com/aleonsan/ansible-kafka
+
+
+## Kafka Command Examples
+- Check the List of Kafka Broker when using Independent Zookeeper
+~~~
+$ zkCli.sh -server localhost:2181 ls /kafka/brokers/ids
+~~ snip
+WatchedEvent state:SyncConnected type:None path:null zxid: -1
+[1, 2, 3]
+~~ snip
+~~~
+
+- Check the Status of Kafka Broker when using Independent Zookeeper
+~~~
+$ zkCli.sh -server localhost:2181 get /kafka/brokers/ids/1
+~~ snip
+{"listener_security_protocol_map":{"PLAINTEXT":"PLAINTEXT"},"endpoints":["PLAINTEXT://rk9-node03.jtest.pivotal.io:9092"],"jmx_port":9997,"features":{},"host":"rk9-node03.jtest.pivotal.io","timestamp":"1725032975661","port":9092,"version":5}
+~~ snip
+~~~
+
+- Show Topic List
+~~~
+$ kafka-topics.sh --bootstrap-server localhost:9092 --list
+~~~
+
+- Create Topic
+~~~
+$ kafka-topics.sh --create --bootstrap-server localhost:9092 --replication-factor 1 --partitions 1 --topic test
+Created topic test.
+
+$ kafka-topics.sh --create --bootstrap-server localhost:9092 --replication-factor 1 --partitions 1 --topic numtest
+Created topic numtest.
+
+$ kafka-topics.sh --create --bootstrap-server localhost:9092 --replication-factor 1 --partitions 1 --topic mytopic
+Created topic numtest.
+~~~
+
+- Describe the Topic
+~~~
+$ kafka-topics.sh --describe --bootstrap-server localhost:9092
+Topic: test     TopicId: fMHGvWG-QhquwzgvOGIYow PartitionCount: 1       ReplicationFactor: 1    Configs: segment.bytes=1073741824
+        Topic: test     Partition: 0    Leader: 1       Replicas: 1     Isr: 1
+Topic: numtest  TopicId: yi5_3jhSRk2Qb1ar2rFUNQ PartitionCount: 1       ReplicationFactor: 1    Configs: segment.bytes=1073741824
+        Topic: numtest  Partition: 0    Leader: 3       Replicas: 3     Isr: 3
+~~~
+
+- Delete Topic
+~~~
+# kafka-topics.sh --bootstrap-server localhost:9092 --delete --topic mytopic
+~~~
+
+- Check Leader Follower for Topic
+~~~
+# kafka-topics.sh --bootstrap-server localhost:9092 --topic mytopic --describe
+Topic: mytopic  TopicId: PRpjpc_NS2u57WtUa955fQ PartitionCount: 1       ReplicationFactor: 1    Configs: segment.bytes=1073741824
+        Topic: mytopic  Partition: 0    Leader: 3       Replicas: 3     Isr: 3
+~~~
+
+- Check the Offset of Topic and Partition
+~~~
+$ kafka-get-offsets.sh --bootstrap-server localhost:9092 --topic test.topic
+
+# In case of --partitions or --topic-partitions partition could be specified
+$ kafka-get-offsets.sh --bootstrap-server localhost:9092 --topic test.topic --partitions 0,1
+
+# In case of using option --topic-partitions, 0-8, -5 (0~5), 6- (6~) is possible to represent for range
+$ kafka-get-offsets.sh --bootstrap-server localhost:9092 --topic-partitions test.topic:0,test.topic2:1-3,test.topic3:5-,test.topic4:-8
+~~~
+
+- Trace Realtime Consuming Messages
+~~~
+# This option, --from-beginning should be consider since it read all messages saved.
+$ kafka-console-consumer.sh --bootstrap-server localhost:9092 --from-beginning --topic numtest
+
+# For Specific Partiton Messages Consuming
+$ kafka/bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --from-beginning --partition 1 --topic numtest
+~~~
+
+
+- Check Consumer Groups
+~~~
+# kafka-consumer-groups.sh  --bootstrap-server localhost:9092 --list
+console-consumer-53426
+
+# kafka-consumer-groups.sh  --bootstrap-server localhost:9092 --group console-consumer-53426 --describe
+Consumer group 'console-consumer-53426' has no active members.
+~~~
+
+- Check Kafka Logs
+~~~
+# Check Server Log
+$ less <Kafka Home Dir/logs/server.log
+
+# Check Connect Log
+$ less <Kafka Home Dir>/logs/connect.log
+~~~
+
 
 ## Planning
 - Adding playbook to install and confgiure kafka / zookeeper monitor

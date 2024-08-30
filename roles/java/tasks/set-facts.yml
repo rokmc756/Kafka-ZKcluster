@@ -13,14 +13,20 @@
     ipaddr2: "{{ hostvars[inventory_hostname]['ansible_'~netdev1].ipv4.address }}"
 
 
-- name: Set Kafka UI Version and Filename
-  set_fact:
-    kafka_ui_api_version: "{{ kafka_ui.api_version }}"
-    kafka_ui_filename: "kafka-ui-api-v{{ kafka_ui.api_version }}.jar"
-
-
 - name: Set Default Network Device and Address
   set_fact:
     _netdev: "ansible_{{ netdev0 }}"
     _ipaddr: "{{ ipaddr0 }}"
+
+
+# Set Fact for Java Packages depends on OS version.
+- set_fact:
+    rh_java_pkgs: "{{ rh7_java_pkgs }}"
+  when: ( ansible_distribution == "RedHat" or ansible_distribution == "CentOS" or ansible_distribution == "Rocky" ) and ansible_distribution_major_version|int <= 7
+- set_fact:
+    rh_java_pkgs: "{{ rh8_java_pkgs }}"
+  when: ( ansible_distribution == "RedHat" or ansible_distribution == "CentOS" or ansible_distribution == "Rocky" ) and ansible_distribution_major_version|int == 8
+- set_fact:
+    rh_java_pkgs: "{{ rh9_java_pkgs }}"
+  when: ( ansible_distribution == "RedHat" or ansible_distribution == "CentOS" or ansible_distribution == "Rocky" ) and ansible_distribution_major_version|int >= 9
 

@@ -2,6 +2,8 @@ ansible_ssh_pass: "changeme"
 ansible_become_pass: "changeme"
 
 kafka:
+  user: kafka
+  group: kafka
   major_version: 3
   minor_version: 6
   patch_version: 2
@@ -9,9 +11,9 @@ kafka:
     major_version: 2
     minor_version: 12
   base_path: /usr/local
+  download: false
   download_url: http://apache.rediris.es/kafka
   download_path: /tmp
-  download: false
   config:
     port: 9092
     log_dirs: /usr/local/kafka/logs
@@ -42,13 +44,15 @@ kafka:
 
 
 zookeeper:
+  user: zookeeper
+  group: zookeeper
   major_version: 3
   minor_version: 9
   patch_version: 2
   base_path: /usr/local
+  download: false
   download_url: http://apache.rediris.es/zookeeper
   download_path: /tmp
-  download: false
   config:
     port: 2181
     log_path: /usr/local/apache-zookeeper/log
@@ -68,13 +72,14 @@ zookeeper:
 
 
 kafka_ui:
+  base_path: "/root"
   api_version: "0.7.2"
   jmx_port: 9997
   port: 8080
   oracle_java: false
   download: false
   download_url: "https://github.com/provectus/kafka-ui/releases/download"
-  # https://github.com/provectus/kafka-ui/releases/download/v0.7.2/kafka-ui-api-v0.7.2.jar
+  download_path: "/root"
 
 
 jdk:

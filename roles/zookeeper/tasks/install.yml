@@ -70,3 +70,12 @@
   shell: "systemctl daemon-reload"
   notify: Restart Zookeeper
 
+
+- name: Insert Executable Binary Path into .bashrc for Zookeeper
+  lineinfile:
+    path: "{{ item }}"
+    line: "export PATH={{ zk_application_path }}/bin:{{ zk_application_path }}/sbin:$PATH"
+  with_items:
+    - "/home/{{ zookeeper.user }}/.bashrc"
+    - "/root/.bashrc"
+

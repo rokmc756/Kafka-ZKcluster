@@ -14,7 +14,7 @@
 
 
 - name: Download Kafka Tar File if Not Downloaded
-  get_url: url={{ kafka.download_mirror }}/{{ kafka.version }}/{{ kafka_package_name }} dest={{ kafka.download_path }}
+  get_url: url={{ kafka.download_url }}/{{ kafka_version }}/{{ kafka_package_name }} dest={{ kafka.download_path }}
   when: kafka_package_exists.stat.exists == false and kafka.download == true
 
 
@@ -68,11 +68,20 @@
   template: src=kafka.systemd.j2 dest=/etc/systemd/system/kafka.service owner=root group=root mode=644 force=yes
 
 
+#  become_user: root
 - name: Reload and Start Kafka Systemd Service
-  become_user: root
   systemd:
     daemon-reload: yes
     name: kafka
     enabled: yes
     state: started
   register: start_kafka_service
+
+
+- name: Insert Executable Binary Path into .bashrc for Kafka
+  lineinfile:
+    path: "{{ item }}"
+    line: "export PATH={{ kafka_application_path }}/bin:{{ kafka_application_path }}/sbin:$PATH"
+  with_items:
+    - "/home/{{ kafka.user }}/.bashrc"
+    - "/root/.bashrc"

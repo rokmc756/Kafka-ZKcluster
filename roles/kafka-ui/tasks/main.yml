@@ -15,11 +15,9 @@
 - name: Install Kafka UI
   import_tasks: install.yml
   tags: install
-  when: inventory_hostname in groups['monitor']
 
 
 - name: Uninstall Kafka UI
   import_tasks: uninstall.yml
   tags: uninstall
-  when: inventory_hostname in groups['monitor']
 

@@ -3,12 +3,14 @@
     name: "zookeeper"
     enabled: no
     state: stopped
+  ignore_errors: true
 
 
 - name: Delete Config/Log/Data Files for Zookeeper
   file:
     path: "{{ item }}"
     state: absent
+  ignore_errors: true
   with_items:
     - "{{ zookeeper.config.data_dir }}/myid"
     - "{{ zk_application_path }}/conf/zoo.cfg"
@@ -25,12 +27,26 @@
   systemd:
     daemon_reload: yes
   register: systemd_reloaded
+  ignore_errors: true
 
 
 - name: Remove Zookeeper User
   user: name=zookeeper state=absent
+  ignore_errors: true
 
 
 - name: Remove Zookeeper Group
   group: name=zookeeper state=present
+  ignore_errors: true
+
+
+- name: Remove a Line Including PATH Variablefor Zookeeper
+  lineinfile:
+    path: "{{ item }}"
+    regexp: "^export PATH=(.*)zookeeper(.*)PATH$"
+    state: absent
+  register: remove_zookeeper_path
+  with_items:
+    - "/home/{{ zookeeper.user }}/.bashrc"
+    - "/root/.bashrc"
 

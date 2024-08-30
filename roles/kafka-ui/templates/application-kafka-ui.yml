@@ -1,7 +1,7 @@
 kafka:
   clusters:
 {% for server in groups["kafka_brokers"] %}
-    - name: {{ hostvars[server].ansible_hostname }}
+    - name: {{ hostvars[server]['ansible_hostname'] }}
       bootstrapServers: {{ hostvars[server][_netdev]['ipv4']['address'] }}:9092
       zookeeper: {{ hostvars[server][_netdev]['ipv4']['address'] }}:2181
       metrics:

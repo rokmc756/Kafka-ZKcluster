@@ -5,6 +5,13 @@
   when: ansible_os_family != 'RedHat' or ansible_os_family != 'CentOS'  ansible_os_family != 'Rocky'
 
 
+- name: Set Facts for Network and Packages Informations
+  import_tasks: set-facts.yml
+  tags:
+    - install
+    - uninstall
+
+
 - name: Install Java
   import_tasks: install-java.yml
   tags: install

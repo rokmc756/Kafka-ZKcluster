@@ -1,5 +1,4 @@
 # Uninstall Kafka Zookeeper Cluster for RHEL or CentOS 7.x
-#
 
 - hosts: kafka_servers
   remote_user: root

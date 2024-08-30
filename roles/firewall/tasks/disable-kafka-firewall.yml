@@ -4,6 +4,7 @@
     permanent: true
     state: disabled
     immediate: yes
+  ignore_errors: true
   with_items:
     - "{{ ports.kafka_ui }}"
   notify: Restart Firewall
@@ -16,6 +17,7 @@
     permanent: true
     state: disabled
     immediate: yes
+  ignore_errors: true
   with_items:
     - "{{ ports.kafka }}"
     - "{{ ports.zookeeper }}"
@@ -29,3 +31,4 @@
     enabled: no
     state: stopped
     daemon_reload: yes
+  ignore_errors: true

@@ -3,27 +3,29 @@
     manager: "auto"
 
 
-- name: Install Java RPM Package for RHEL/CentOS/Rocky 8 and higher versions
+- name: Install Java Packages for RHEL/CentOS/Rocky Linux Depends On Version
   yum:
     name: "{{ item }}"
     state: present
-  with_items: "{{ rh9_java_pkgs }}"
+  with_items: "{{ rh_java_pkgs }}"
   when:
-    - hostvars[inventory_hostname].ansible_distribution_major_version|int >= 8
-    - jdk.oracle.install == false
+    - jdk.oss.install == false
+
+  #  - hostvars[inventory_hostname].ansible_distribution_major_version|int >= 8
+  # with_items: "{{ rh9_java_pkgs }}"
 
 
-- name: Install Java RPM Package for RHEL/CentOS/Rocky 7 and lower versions
-  yum:
-    name: "{{ item }}"
-    state: present
-  with_items: "{{ rh7_java_pkgs }}"
-  when:
-    - hostvars[inventory_hostname].ansible_distribution_major_version|int < 8
-    - jdk.oracle.install == false
+#- name: Install Java RPM Package for RHEL/CentOS/Rocky 7 and lower versions
+#  yum:
+#    name: "{{ item }}"
+#    state: present
+#  with_items: "{{ rh7_java_pkgs }}"
+#  when:
+#    - hostvars[inventory_hostname].ansible_distribution_major_version|int < 8
+#    - jdk.oracle.install == false
 
 
-- name: Copy Oracle JAVA RPM package
+- name: Copy Oracle JAVA RPM Packages
   copy:
     src: jdk-{{ oracle_java_version }}_linux-x64_bin.rpm
     dest: /root/jdk-{{ oracle_java_version }}_linux-x64_bin.rpm
@@ -35,7 +37,7 @@
     - jdk.oracle.install == true
 
 
-- name: Install Oracle Java RPM package
+- name: Install Oracle Java RPM Packages
   yum:
     name: /root/jdk-{{ oracle_java_version }}_linux-x64_bin.rpm
     state: present
