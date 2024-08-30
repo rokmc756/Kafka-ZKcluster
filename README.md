@@ -65,38 +65,64 @@ ssh_key_filename="id_rsa"
 remote_machine_username="jomoon"
 remote_machine_password="changeme"
 
-# These are your kafka cluster nodes
 [monitor]
-co7-master kafka_broker_id=4 ansible_ssh_host=192.168.0.61
+rk8-node01 ansible_ssh_host=192.168.0.71
 
 # These are your kafka cluster nodes
-[brokers]
-co7-node01 kafka_broker_id=1 ansible_ssh_host=192.168.0.63
-co7-node02 kafka_broker_id=2 ansible_ssh_host=192.168.0.64
-co7-node03 kafka_broker_id=3 ansible_ssh_host=192.168.0.65
+[kafka_brokers]
+rk9-node03 kafka_broker_id=1 ansible_ssh_host=192.168.0.73
+rk9-node04 kafka_broker_id=2 ansible_ssh_host=192.168.0.74
+rk9-node05 kafka_broker_id=3 ansible_ssh_host=192.168.0.75
 
 # These are your zookeeper cluster nodes
 [zk_servers]
-co7-node01 zk_id=1 ansible_ssh_host=192.168.0.63
-co7-node02 zk_id=2 ansible_ssh_host=192.168.0.64
-co7-node03 zk_id=3 ansible_ssh_host=192.168.0.65
+rk9-node03 zk_id=1 ansible_ssh_host=192.168.0.73
+rk9-node04 zk_id=2 ansible_ssh_host=192.168.0.74
+rk9-node05 zk_id=3 ansible_ssh_host=192.168.0.75
 ```
 
-#### 4) Configure variables for kafka version and location which will be installed as well as other parameters
+#### 4) Initialization Linux Host to install packages required and generate/exchange ssh keys between all hosts.
 ```
-$ vi roles/kafka/vars/main.yml
-package_download_path : "/tmp"
+$ vi roles/init-hosts/vars/main.yml
+ansible_ssh_pass: "changeme"
+ansible_become_pass: "changeme"
+
+sudo_user: "kafka"
+sudo_group: "kafka"
+local_sudo_user: "jomoon"
+wheel_group: "wheel"            # RHEL / CentOS / Rocky / SUSE / OpenSUSE
+# wheel_group: "sudo"           # Debian / Ubuntu
+root_user_pass: "changeme"
+sudo_user_pass: "changeme"
+sudo_user_home_dir: "/home/{{ sudo_user }}"
+domain_name: "jtest.pivotal.io"
+
+make init
+```
+
+#### 5) Configure variables for kafka version and location which will be installed as well as other parameters
+```
+$ vi group_vars/all.yml
+~~ snip
 kafka:
-  version: 3.5.1
-  scala_version: 2.13
-  installation_path: /usr/local
-  download_mirror: http://apache.rediris.es/kafka
-  download_kafka: false
-  configuration:
+  major_version: 3
+  minor_version: 6
+  patch_version: 2
+  scala:
+    major_version: 2
+    minor_version: 12
+  base_path: /usr/local
+  download_url: http://apache.rediris.es/kafka
+  download_path: /tmp
+  download: false
+  config:
     port: 9092
-    data_dir: /usr/local/kafka/data
     log_dirs: /usr/local/kafka/logs
     log_path: /usr/local/kafka/log
+    data_dir: /usr/local/kafka/data
+    topic_dirs:
+      - "data1"
+      - "data2"
     network_threads: 3
     disk_threads: 8
     num_partitions: 3
@@ -110,35 +136,28 @@ kafka:
     log_retention_check_interval: 300000
     log_cleaner_enable: false
     zk_connection_timeout: 60000
-  #  log_dirs: /tmp/lib/kafka/kafka-logs
-  #  data_dir: /var/lib/kafka
-  #  log_dirs: /usr/local/kafka/logs
-  #  log_path: /var/log/kafka
-zookeeper:
-  version: 3.8.1
-  installation_path: /usr/local
-  download_mirror: http://apache.rediris.es/zookeeper
-  download_zookeeper: false
-  configuration:
-    port: 2181
-    log_path: /var/log/zookeeper
-    data_dir: /var/lib/zookeeper
-    tick_time: 2000
-    init_limit: 5
-    sync_limit: 2
-  use_internal_zookeeper: false
+  net:
+    type: "virtual"                # Or Physical
+    gateway: "192.168.0.1"
+    ipaddr0: "192.168.0.7"
+    ipaddr1: "192.168.1.7"
+    ipaddr2: "192.168.2.7"
+~~ snip
 ```
 
-#### 5) Configure variables for zookeeper version and location which will be installed as well as other parameters
+#### 6) Configure variables for zookeeper version and location which will be installed as well as other parameters
 ```
-$ vi roles/zookeeper/vars/main.yml
-package_download_path : "/tmp"
+$ vi group_vars/all.yml
+~~ snip
 zookeeper:
-  version: 3.9.1
-  installation_path: /usr/local
-  download_mirror: http://apache.rediris.es/zookeeper
-  download_zookeeper: false
-  configuration:
+  major_version: 3
+  minor_version: 9
+  patch_version: 2
+  base_path: /usr/local
+  download_url: http://apache.rediris.es/zookeeper
+  download_path: /tmp
+  download: false
+  config:
     port: 2181
     log_path: /usr/local/apache-zookeeper/log
     data_dir: /usr/local/apache-zookeeper/data
@@ -146,48 +165,68 @@ zookeeper:
     init_limit: 5
     sync_limit: 2
   use_internal_zookeeper: false
-#  log_path: /var/log/zookeeper
-#  data_dir: /var/lib/zookeeper
+  # log_path: /var/log/zookeeper
+  # data_dir: /var/lib/zookeeper
+  net:
+    type: "virtual"                # Or Physical
+    gateway: "192.168.0.1"
+    ipaddr0: "192.168.0.7"
+    ipaddr1: "192.168.1.7"
+    ipaddr2: "192.168.2.7"
+~~ snip
 ```
 
-#### 6) Configure variables for java version and location
+#### 7) Configure variables for java version and location
 ```
-$ vi roles/java/vars/main.yml
----
-jvm_home: "/usr/lib/jvm"
-install_oracle_java: false
-oracle_java_version: "13.0.2"
+$ vi group_vars/all.yml
+~~ snip
+jdk:
+  oss:
+    install: true
+    jvm_home: "/usr/lib/jvm"
+    major_version: 1
+    minor_version: 8
+    patch_version: 0
+  oracle:
+    install: false
+    jvm_home: "/usr/lib/jvm"
+    major_version: 13
+    minor_version: 0
+    patch_version: 2
+~~ snip
 ```
 
-#### 7) Configure variables for Kafka UI version and other parameters
+#### 8) Configure variables for Kafka UI version and other parameters
 ```
-$ vi roles/kafka-ui/vars/main.yml
-kafka_ui_api_version: "0.7.1"
-jmx_port: 9997
-kafka_ui_port: 8080
-install_oracle_java: true
+$ vi group_vars/all.yml
+~~ snip
+kafka_ui:
+  api_version: "0.7.2"
+  jmx_port: 9997
+  port: 8080
+  oracle_java: false
+~~ snip
 ```
 
 ## How to Deploy Kafaka-ZKCluster
 #### Configure ansible playbook to deploy Kafka-ZKCluster and UI
 ```
 $ vi install-kafka.yml
----
-- hosts: brokers
-  remote_user: root
+- hosts: all
   become: true
   roles:
-    - java
     - firewall
+    - java
+
+- hosts: kafka_brokers
+  become: true
+  roles:
     - zookeeper
     - kafka
 
 - hosts: monitor
-  remote_user: root
   become: true
   roles:
-    - firewall
-    - java
     - kafka-ui
 
 $ make install
@@ -198,28 +237,30 @@ $ make install
 ```
 $ vi uninstall-kafka.yml
 ---
+- hosts: kafka_brokers
+  become: true
+  roles:
+    - kafka
+    - zookeeper
+
 - hosts: monitor
-  remote_user: root
   become: true
   roles:
     - kafka-ui
-    - firewall
-    - java
 
-- hosts: brokers
-  remote_user: root
+- hosts: all
   become: true
   roles:
     - java
     - firewall
-    - zookeeper
-    - kafka
 
 $ make uninstall
+
+$ make uninit
 ```
 
 ## Planning
 - Adding playbook to install and confgiure kafka / zookeeper monitor
 - Configuring Auth for Kafka UI ( Check if configuration SSL is possible? )
 - Configuring Scheme Segistry and Ssql DB for Kafka UI
-- Testing Confluent Platform recent version 7.3
+- Testing Confluent Platform Recent Version 7.3
