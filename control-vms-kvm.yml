@@ -7,6 +7,6 @@
         virsh {{ power_state }} {{ item }}
       register: power_vms
       ignore_errors: true
-      loop: "{{ cbdb.vms.rk9 }}"
-      # loop: "{{ cbdb.vms.ubt24 }}"
+      loop: "{{ _kafka.vms.rk9 }}"
+      # loop: "{{ _kafka.vms.ubt24 }}"
 

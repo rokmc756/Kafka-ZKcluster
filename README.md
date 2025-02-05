@@ -392,20 +392,7 @@ $ less <Kafka Home Dir>/logs/connect.log
 
 
 ## Planning
-- Adding playbook to install and confgiure kafka / zookeeper monitor
-- Configuring Auth for Kafka UI ( Check if configuration SSL is possible? )
-- Configuring Scheme Segistry and Ssql DB for Kafka UI
-- Testing Confluent Platform Recent Version 7.3
-
-
-
-## New Makefile
-~~~yaml
-$ make hosts r=init
-$ make firewall r=enable
-$ make java r=setup
-$ make zookeeper r=setup
-$ make kafka r=setup
-$ make kafka-ui r=setup
-~~~
+- [X] Adding Playbook to Install and Confgiure Kafka / Zookeeper Monitor
+- [] Configuring Auth for Kafka UI and Check if Configuring SSL is Possible
+- [] Configuring Scheme Segistry and Ssql DB for Kafka UI
 
