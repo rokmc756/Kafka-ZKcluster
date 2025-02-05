@@ -54,14 +54,6 @@ download:
 	@rm -f setup-${*}.yml Makefile.${*}
 
 
-
-#	@ln -sf ansible-hosts-rk9 ansible-hosts
-#	@cat Makefile.tmp  | sed -e 's/temp/${*}/g' > Makefile.${*}
-#	@cat setup-temp.yml.tmp | sed -e 's/    - temp/    - ${*}/g' > setup-${*}.yml
-#	@make -f Makefile.${*} r=${r} s=${s} c=${c} USERNAME=${USERNAME}
-#	@rm -f setup-${*}.yml Makefile.${*}
-
-
 # clean:
 # 	rm -rf ./known_hosts install-hosts.yml update-hosts.yml
 
