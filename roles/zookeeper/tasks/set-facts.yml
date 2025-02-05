@@ -1,23 +1,30 @@
 ---
 - name: Get Network Interface Name from Prefix of IP Addresses
   set_fact:
-    netdev0: "{{ ansible_interfaces | map('regex_replace', '^', 'ansible_') | map('extract', vars) | selectattr('ipv4', 'defined') | selectattr('ipv4.address', 'match', zookeeper.net.ipaddr0 ) | map(attribute='device') | first }}"
-    netdev1: "{{ ansible_interfaces | map('regex_replace', '^', 'ansible_') | map('extract', vars) | selectattr('ipv4', 'defined') | selectattr('ipv4.address', 'match', zookeeper.net.ipaddr1 ) | map(attribute='device') | first }}"
-    netdev2: "{{ ansible_interfaces | map('regex_replace', '^', 'ansible_') | map('extract', vars) | selectattr('ipv4', 'defined') | selectattr('ipv4.address', 'match', zookeeper.net.ipaddr2 ) | map(attribute='device') | first }}"
+    netdev0: "{{ ansible_interfaces | map('regex_replace', '^', 'ansible_') | map('extract', vars) | selectattr('ipv4', 'defined') | selectattr('ipv4.address', 'match', _zookeeper.net.ipaddr0 ) | map(attribute='device') | first }}"
+    netdev2: "{{ ansible_interfaces | map('regex_replace', '^', 'ansible_') | map('extract', vars) | selectattr('ipv4', 'defined') | selectattr('ipv4.address', 'match', _zookeeper.net.ipaddr2 ) | map(attribute='device') | first }}"
+    # netdev1: "{{ ansible_interfaces | map('regex_replace', '^', 'ansible_') | map('extract', vars) | selectattr('ipv4', 'defined') | selectattr('ipv4.address', 'match', zookeeper.net.ipaddr1 ) | map(attribute='device') | first }}"
 
 
 - name: Get IP Address from Network Device Name
   set_fact:
     ipaddr0: "{{ hostvars[inventory_hostname]['ansible_'~netdev0].ipv4.address }}"
-    ipaddr1: "{{ hostvars[inventory_hostname]['ansible_'~netdev1].ipv4.address }}"
-    ipaddr2: "{{ hostvars[inventory_hostname]['ansible_'~netdev1].ipv4.address }}"
+    ipaddr2: "{{ hostvars[inventory_hostname]['ansible_'~netdev2].ipv4.address }}"
+    # ipaddr1: "{{ hostvars[inventory_hostname]['ansible_'~netdev1].ipv4.address }}"
+
+
+- name: Set Default Network Device and Address
+  set_fact:
+    netdev: "{{ netdev2 }}"
+    _netdev: "ansible_{{ netdev2 }}"
+    _ipaddr: "{{ ipaddr2 }}"
 
 
 - name: Define Fact for Kafka/Zookeeper Version
   set_fact:
-    scala_version: "{{ kafka.scala.major_version}}.{{ kafka.scala.minor_version }}"
-    kafka_version: "{{ kafka.major_version }}.{{ kafka.minor_version }}.{{ kafka.patch_version }}"
-    zookeeper_version: "{{ zookeeper.major_version }}.{{ zookeeper.minor_version }}.{{ zookeeper.patch_version }}"
+    scala_version: "{{ _kafka.scala.major_version}}.{{ _kafka.scala.minor_version }}"
+    kafka_version: "{{ _kafka.major_version }}.{{ _kafka.minor_version }}.{{ _kafka.patch_version }}"
+    zookeeper_version: "{{ _zookeeper.major_version }}.{{ _zookeeper.minor_version }}.{{ _zookeeper.patch_version }}"
 
 
 - name: Set Kafka/Zookeeper Package Name and Application Path
@@ -25,13 +32,7 @@
     kafka_file_name: "kafka_{{ scala_version }}-{{ kafka_version }}"
     zookeeper_file_name: "apache-zookeeper-{{ zookeeper_version }}-bin"
     kafka_package_name: "kafka_{{ scala_version }}-{{ kafka_version }}.tgz"
-    kafka_application_path: "{{ kafka.base_path }}/kafka_{{ scala_version }}-{{ kafka_version }}"
+    kafka_application_path: "{{ _kafka.base_path }}/kafka_{{ scala_version }}-{{ kafka_version }}"
     zk_package_name: apache-zookeeper-{{ zookeeper_version }}-bin.tar.gz
-    zk_application_path: "{{ zookeeper.base_path }}/apache-zookeeper-{{ zookeeper_version }}-bin"
-
-
-- name: Set Default Network Device and Address
-  set_fact:
-    _netdev: "{{ netdev0 }}"
-    _ipaddr: "{{ ipaddr0 }}"
+    zk_application_path: "{{ _zookeeper.base_path }}/apache-zookeeper-{{ zookeeper_version }}-bin"
 

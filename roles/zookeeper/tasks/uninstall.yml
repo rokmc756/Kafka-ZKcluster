@@ -12,14 +12,14 @@
     state: absent
   ignore_errors: true
   with_items:
-    - "{{ zookeeper.config.data_dir }}/myid"
+    - "{{ _zookeeper.config.data_dir }}/myid"
     - "{{ zk_application_path }}/conf/zoo.cfg"
-    - "{{ zookeeper.config.log_path }}"
-    - "{{ zookeeper.config.data_dir }}"
-    - "{{ zookeeper.config.data_dir }}"
-    - "{{ zookeeper.base_path }}/apache-zookeeper-{{ zookeeper_version }}"
-    - "{{ zookeeper.base_path }}/apache-zookeeper"
-    - "{{ zookeeper.download_path }}/{{ zk_package_name }}"
+    - "{{ _zookeeper.config.log_path }}"
+    - "{{ _zookeeper.config.data_dir }}"
+    - "{{ _zookeeper.config.data_dir }}"
+    - "{{ _zookeeper.base_path }}/apache-zookeeper-{{ zookeeper_version }}"
+    - "{{ _zookeeper.base_path }}/apache-zookeeper"
+    - "{{ _zookeeper.download_path }}/{{ zk_package_name }}"
     - "/etc/systemd/system/zookeeper.service"
 
 
@@ -47,6 +47,6 @@
     state: absent
   register: remove_zookeeper_path
   with_items:
-    - "/home/{{ zookeeper.user }}/.bashrc"
+    - "/home/{{ _zookeeper.user }}/.bashrc"
     - "/root/.bashrc"
 

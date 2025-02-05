@@ -1,79 +1,77 @@
-# add the IP address, username and hostname of the target hosts here
-
 USERNAME=jomoon
 COMMON="yes"
 ANSIBLE_HOST_PASS="changeme"
 ANSIBLE_TARGET_PASS="changeme"
-# include ./*.mk
-
-GPHOSTS := $(shell grep -i '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}' ./ansible-hosts | sed -e "s/ ansible_ssh_host=/,/g")
-
-all:
-	@echo ""
-	@echo "[ Available targets ]"
-	@echo ""
-	@echo "init:            will install basic requirements (will ask several times for a password)"
-	@echo "install:         will install the host with what is defined in install-host.yml"
-	@echo "update:          run OS updates"
-	@echo "ssh:             jump ssh to host"
-	@echo "role-update:     update all downloades roles"
-	@echo "available-roles: list known roles which can be downloaded"
-	@echo "clean:           delete all temporary files"
-	@echo ""
-	@for GPHOST in ${GPHOSTS}; do \
-		IP=$${GPHOST#*,}; \
-	    	HOSTNAME=$${LINE%,*}; \
-		echo "Current used hostname: $${HOSTNAME}"; \
-		echo "Current used IP: $${IP}"; \
-		echo "Current used user: ${USERNAME}"; \
-		echo ""; \
-	done
 
 
-# - https://ansible-tutorial.schoolofdevops.com/control_structures/
-boot: role-update control-vms.yml
-	ansible-playbook --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -u ${USERNAME} control-vms.yml --extra-vars "power_state=powered-on power_title=Power-On VMs"
+# Define Boot CMD
+VMWARE_BOOT_CMD="powered-on"
+VMWARE_SHUTDOWN_CMD="shutdown-guest"
+VMWARE_ROLE_CONFIG="control-vms-vmware.yml"
+KVM_BOOT_CMD="start"
+KVM_SHUTDOWN_CMD="shutdown"
+KVM_ROLE_CONFIG="control-vms-kvm.yml"
+KVM_HOST_CONFIG="ansible-hosts-fedora"
+VMWARE_HOST_CONFIG="ansible-hosts-vmware"
 
-shutdown: role-update control-vms.yml
-	ansible-playbook --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -u ${USERNAME} control-vms.yml --extra-vars "power_state=shutdown-guest power_title=Shutdown VMs"
 
-download: role-update download-kafka.yml
-	ansible-playbook --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -u ${USERNAME} download-kafka.yml --tags="download"
+BOOT_CMD=${KVM_BOOT_CMD}
+SHUTDOWN_CMD=${KVM_SHUTDOWN_CMD}
+ROLE_CONFIG=${KVM_ROLE_CONFIG}
+ANSIBLE_HOST_CONFIG=${KVM_HOST_CONFIG}
 
-init: role-update init-hosts.yml
-	ansible-playbook --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -u ${USERNAME} init-hosts.yml --tags="init"
 
-uninit: role-update init-hosts.yml
-	ansible-playbook --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -u ${USERNAME} init-hosts.yml --tags="uninit"
+# Control VMs in KVM For Power On or Off
+boot:
+	@ansible-playbook -i ${ANSIBLE_HOST_CONFIG} --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -u ${USERNAME} ${ROLE_CONFIG} --extra-vars "power_state=${BOOT_CMD} power_title=Power-On VMs"
 
-install: role-update install-kafka.yml
-	ansible-playbook --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -i ansible-hosts -u ${USERNAME} install-kafka.yml --tags="install"
+shutdown:
+	@ansible-playbook -i ${ANSIBLE_HOST_CONFIG} --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -u ${USERNAME} ${ROLE_CONFIG} --extra-vars "power_state=${SHUTDOWN_CMD} power_title=Shutdown VMs"
 
-uninstall: role-update uninstall-kafka.yml
-	ansible-playbook --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -i ansible-hosts -u ${USERNAME} uninstall-kafka.yml --tags="uninstall"
+download:
+	@ansible-playbook --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -u ${USERNAME} download-kafka.yml --tags="download"
 
-upgrade: role-update setup-kafka.yml
-	ansible-playbook --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -i ansible-hosts -u ${USERNAME} setup-kafka.yml --tags="upgrade"
 
-update:
-	ansible-playbook --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -i ${IP}, -u ${USERNAME} update-host.yml
+# For All Roles
+%:
+	@ln -sf ansible-hosts-rk9 ansible-hosts;
+	@cat Makefile.tmp  | sed -e 's/temp/${*}/g' > Makefile.${*}
+	
+	@if [ "${*}" = "" ] || [ "${*}" = "firewall" || [ "${*}" = "hosts" ] ; then\
+		cat setup-temp.yml.tmp | sed -e 's/    - temp/    - ${*}/g' > setup-${*}.yml;\
+	elif [ "${*}" = "zookeeper" ]; then\
+		cat setup-kafka-temp.yml.tmp | sed -e 's/    - temp/    - ${*}/g' > setup-${*}.yml;\
+	elif [ "${*}" = "kafka" ]; then\
+		cat setup-kafka-temp.yml.tmp | sed -e 's/    - temp/    - ${*}/g' > setup-${*}.yml;\
+	elif [ "${*}" = "kafka-ui" ]; then\
+		cat setup-kafka-ui-temp.yml.tmp | sed -e 's/    - temp/    - ${*}/g' > setup-${*}.yml;\
+	else\
+		echo "No actions to temp";\
+		exit;\
+	fi
+	
+	@make -f Makefile.${*} r=${r} s=${s} c=${c} USERNAME=${USERNAME}
+	@rm -f setup-${*}.yml Makefile.${*}
+
+
+
+#	@ln -sf ansible-hosts-rk9 ansible-hosts
+#	@cat Makefile.tmp  | sed -e 's/temp/${*}/g' > Makefile.${*}
+#	@cat setup-temp.yml.tmp | sed -e 's/    - temp/    - ${*}/g' > setup-${*}.yml
+#	@make -f Makefile.${*} r=${r} s=${s} c=${c} USERNAME=${USERNAME}
+#	@rm -f setup-${*}.yml Makefile.${*}
+
+
+# clean:
+# 	rm -rf ./known_hosts install-hosts.yml update-hosts.yml
+
 
 # https://stackoverflow.com/questions/4219255/how-do-you-get-the-list-of-targets-in-a-makefile
-no_targets__:
-role-update:
-	sh -c "$(MAKE) -p no_targets__ | awk -F':' '/^[a-zA-Z0-9][^\$$#\/\\t=]*:([^=]|$$)/ {split(\$$1,A,/ /);for(i in A)print A[i]}' | grep -v '__\$$' | grep '^ansible-update-*'" | xargs -n 1 make --no-print-directory
-        $(shell sed -i -e '2s/.*/ansible_become_pass: ${ANSIBLE_HOST_PASS}/g' ./group_vars/all.yml )
+#no_targets__:
+#role-update:
+#	sh -c "$(MAKE) -p no_targets__ | awk -F':' '/^[a-zA-Z0-9][^\$$#\/\\t=]*:([^=]|$$)/ {split(\$$1,A,/ /);for(i in A)print A[i]}' | grep -v '__\$$' | grep '^ansible-update-*'" | xargs -n 1 make --no-print-directory
+#        $(shell sed -i -e '2s/.*/ansible_become_pass: ${ANSIBLE_HOST_PASS}/g' ./group_vars/all.yml )
 
-ssh:
-	ssh -o UserKnownHostsFile=./known_hosts ${USERNAME}@${IP}
 
-install-host.yml:
-	cp -a install-host.template install-host.yml
-
-update-host.yml:
-	cp -a update-host.template update-host.yml
-
-clean:
-	rm -rf ./known_hosts install-host.yml update-host.yml
-
+# Need to check what it should be needed
 .PHONY:	all init install update ssh common clean no_targets__ role-update

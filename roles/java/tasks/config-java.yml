@@ -7,7 +7,7 @@
     priority: -10
   when:
     - hostvars[inventory_hostname].ansible_distribution_major_version|int >= 8
-    - jdk.oracle.install == false
+    - _jdk.oss.install == true
 
 
 - name: Correct Java Version Selected
@@ -18,7 +18,7 @@
     priority: -10
   when:
     - hostvars[inventory_hostname].ansible_distribution_major_version|int < 8
-    - jdk.oracle.install == false
+    - _jdk.oss.install == true
 
 
 - name: Correct Java Version Selected
@@ -29,8 +29,7 @@
     priority: -10
   when:
     - hostvars[inventory_hostname].ansible_distribution_major_version|int <= 8
-    - jdk.oracle.install == true
-    # path: /usr/lib/jvm/jdk-{{ oracle_java_version }}-oracle-x64/bin/java
+    - _jdk.oracle.install == true
 
 
 - name: Copy Java Home Script

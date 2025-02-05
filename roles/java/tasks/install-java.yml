@@ -1,3 +1,4 @@
+---
 - name: Check if Java RPM Package is installed
   package_facts:
     manager: "auto"
@@ -9,20 +10,7 @@
     state: present
   with_items: "{{ rh_java_pkgs }}"
   when:
-    - jdk.oss.install == false
-
-  #  - hostvars[inventory_hostname].ansible_distribution_major_version|int >= 8
-  # with_items: "{{ rh9_java_pkgs }}"
-
-
-#- name: Install Java RPM Package for RHEL/CentOS/Rocky 7 and lower versions
-#  yum:
-#    name: "{{ item }}"
-#    state: present
-#  with_items: "{{ rh7_java_pkgs }}"
-#  when:
-#    - hostvars[inventory_hostname].ansible_distribution_major_version|int < 8
-#    - jdk.oracle.install == false
+    - _jdk.oss.install == true
 
 
 - name: Copy Oracle JAVA RPM Packages
@@ -34,7 +22,7 @@
     group: root
   when:
     - hostvars[inventory_hostname].ansible_distribution_major_version|int <= 8
-    - jdk.oracle.install == true
+    - _jdk.oracle.install == true
 
 
 - name: Install Oracle Java RPM Packages
@@ -46,16 +34,17 @@
   poll: 5
   when:
     - hostvars[inventory_hostname].ansible_distribution_major_version|int <= 8
-    - jdk.oracle.install == true
+    - _jdk.oracle.install == true
 
 
 #- name: Download JDK Package if Not Downloaded
-#  get_url: url={{ java.download_mirror }}/{{ java.version }}-{{ java.build }}/{{ jdk_package_name }} dest={{ package_download_path }} headers={{ java.download_cookies }}
-#  when: jdk.oracle.install == true and not jdk_package_exists.stat.exists
+#  get_url: url={{ _java.download_mirror }}/{{ _java.version }}-{{ _java.build }}/{{ jdk_package_name }} dest={{ package_download_path }} headers={{ _java.download_cookies }}
+#  when: _jdk.oracle.install == true and not jdk_package_exists.stat.exists
 
 
 #- name: Make Java System Alternative
 #  priority parameter its supported in Ansible > 2.2
-#  alternatives: name=java path={{ java.installation_path }}/bin/java link=/usr/bin/java
-#  when: jdk.oracle.install == true and not jdk_package_exists.stat.exists
+#  alternatives: name=java path={{ _java.installation_path }}/bin/java link=/usr/bin/java
+#  when: _jdk.oracle.install == true and not jdk_package_exists.stat.exists
+
 

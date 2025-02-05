@@ -1,5 +1,4 @@
 ---
-# For now fail if it's not a Red Hat based system
 - name: Check OS ( Zookeeper )
   fail: msg="Not a Red Hat based system!"
   when: ansible_os_family != 'RedHat' or ansible_os_family != 'CentOS'  ansible_os_family != 'Rocky'
@@ -7,17 +6,15 @@
 
 - name: Set Facts for Network and Packages Informations
   import_tasks: set-facts.yml
-  tags:
-    - install
-    - uninstall
+  tags: install, uninstall, setup, remove
 
 
 - name: Install ZooKeeper
   import_tasks: install.yml
-  tags: install
+  tags: setup, install
 
 
 - name: Uninstall Zookeeper
   import_tasks: uninstall.yml
-  tags: uninstall
+  tags: remove, uninstall
 

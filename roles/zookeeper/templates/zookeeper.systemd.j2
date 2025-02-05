@@ -4,13 +4,16 @@ Requires=network.target
 Before=kafka.service
 After=network.target remote-fs.target
 
+
 [Service]
 Type=forking
 User=zookeeper
-Environment=ZOO_LOG_DIR={{ zookeeper.config.log_path }} CHDIR={{ zookeeper.config.data_dir }}
+Environment=ZOO_LOG_DIR={{ _zookeeper.config.log_path }} CHDIR={{ _zookeeper.config.data_dir }}
 ExecStart=/bin/bash -c "/usr/local/apache-zookeeper/bin/zkServer.sh start"
 ExecStop=/bin/bash -c "/usr/local/apache-zookeeper/bin/zkServer.sh stop"
 Restart=on-abort
 
+
 [Install]
 WantedBy=multi-user.target
+

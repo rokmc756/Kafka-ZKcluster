@@ -3,23 +3,21 @@
     - name: Download Kafka/Zookeeper Software Binaries and Save the into Ansible Files Directory
       become: true
       vars:
-        kafka_download_version: "{{ kafka.major_version }}.{{ kafka.minor_version }}.{{ kafka.patch_version }}"
-        scala_version: "{{ kafka.scala.major_version }}.{{ kafka.scala.minor_version }}"
-        kafka_package: "kafka_{{ kafka.scala.major_version }}.{{ kafka.scala.minor_version }}-{{ kafka.major_version }}.{{ kafka.minor_version }}.{{ kafka.patch_version }}.tgz"
-        zookeeper_download_version: "{{ zookeeper.major_version }}.{{ zookeeper.minor_version }}.{{ zookeeper.patch_version }}"
-        zookeeper_package: "apache-zookeeper-{{ zookeeper.major_version }}.{{ zookeeper.minor_version }}.{{ zookeeper.patch_version }}-bin.tar.gz"
+        kafka_download_version: "{{ _kafka.major_version }}.{{ _kafka.minor_version }}.{{ _kafka.patch_version }}"
+        scala_version: "{{ _kafka.scala.major_version }}.{{ _kafka.scala.minor_version }}"
+        kafka_package: "kafka_{{ _kafka.scala.major_version }}.{{ _kafka.scala.minor_version }}-{{ _kafka.major_version }}.{{ _kafka.minor_version }}.{{ _kafka.patch_version }}.tgz"
+        zookeeper_download_version: "{{ _zookeeper.major_version }}.{{ _zookeeper.minor_version }}.{{ _zookeeper.patch_version }}"
+        zookeeper_package: "apache-zookeeper-{{ _zookeeper.major_version }}.{{ _zookeeper.minor_version }}.{{ _zookeeper.patch_version }}-bin.tar.gz"
         local_dir: "/home/jomoon/Kafka-ZKcluster"
       get_url:
         url: "{{ item.url }}"
         dest: "{{ item.dest }}"
       with_items:
-        - { url: "{{ kafka.download_url }}/{{ kafka_download_version }}/{{ kafka_package }}",
+        - { url: "{{ _kafka.download_url }}/{{ kafka_download_version }}/{{ kafka_package }}",
             dest: "{{ local_dir }}/roles/kafka/files/{{ kafka_package }}" }
-        - { url: "{{ zookeeper.download_url }}/zookeeper-{{ zookeeper_download_version }}/{{ zookeeper_package }}",
+        - { url: "{{ _zookeeper.download_url }}/zookeeper-{{ zookeeper_download_version }}/{{ zookeeper_package }}",
             dest: "{{ local_dir }}/roles/zookeeper/files/{{ zookeeper_package }}" }
-        - { url: "{{ kafka_ui.download_url }}/v{{ kafka_ui.api_version }}/kafka-ui-api-v{{ kafka_ui.api_version }}.jar",
-            dest: "{{ local_dir }}/roles/kafka-ui/files/kafka-ui-api-v{{ kafka_ui.api_version }}.jar" }
+        - { url: "{{ _kafka_ui.download_url }}/v{{ _kafka_ui.api_version }}/kafka-ui-api-v{{ _kafka_ui.api_version }}.jar",
+            dest: "{{ local_dir }}/roles/kafka-ui/files/kafka-ui-api-v{{ _kafka_ui.api_version }}.jar" }
       tags: download
 
-      # https://github.com/provectus/kafka-ui/releases/download/v0.7.2/kafka-ui-api-v0.7.2.jar
-      #

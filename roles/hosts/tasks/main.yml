@@ -1,0 +1,35 @@
+---
+- name: Check OS
+  fail: msg="{{ ansible_distribution }} is not supported for this ansible playbook!"
+  when: ansible_distribution != 'RedHat' or ansible_distribution != 'CentOS' or ansible_distribution != 'Rocky' or ansible_distribution != 'Debian' or ansible_distribution != 'Ubuntu'
+
+
+- name: Set Facts for Network and Packages Informations
+  import_tasks: set-facts.yml
+  tags: init, uninit, install, uninstall
+
+
+- name: Setup Hostname and IP Address in /etc/hosts
+  import_tasks: init-hosts.yml
+  tags: init, install
+
+
+- name: Install Prerequiestes Software Packages and Setup Hostname, IP Addresses
+  import_tasks: install.yml
+  tags: init, install
+
+
+- name: Create SSH Key and Exchange It for Sudo User among All Hosts
+  import_tasks: ssh_sudo_user.yml
+  tags: init, install
+
+
+- name: Create SSH Key and Exchange It for Root User among All Hosts
+  import_tasks: ssh_root_user.yml
+  tags: init, install
+
+
+- name: Uninstall SSH Keys and Sudo Users as well as Prerequiestes Software Packages
+  import_tasks: uninstall.yml
+  tags: uninit, uninstall
+

@@ -1,3 +1,4 @@
+---
 - name: Set Package Manager with Auth
   package_facts:
     manager: "auto"
@@ -9,30 +10,18 @@
     state: absent
   with_items: "{{ rh_java_pkgs }}"
   when:
-    - jdk.oss.install == true
-  # - hostvars[inventory_hostname].ansible_distribution_major_version|int >= 8
-  # with_items: "{{ rh9_java_pkgs }}"
-
-
-#- name: Uninstall Java RPM Package for RHEL/CentOS/Rocky 7 and lower versions
-#  yum:
-#    name: "{{ item }}"
-#    state: absent
-#  with_items: "{{ rh7_java_pkgs }}"
-#  when:
-#    - hostvars[inventory_hostname].ansible_distribution_major_version|int < 8
-#    - jdk.oracle.install == false
+    - _jdk.oss.install == true
 
 
 - name: Uninstall Oracle Java RPM package
   package:
-    name: jdk-{{ jdk.oracle.major_version }}
+    name: jdk-{{ _jdk.oracle.major_version }}
     state: absent
   async: 360
   poll: 5
   when:
     - hostvars[inventory_hostname].ansible_distribution_major_version|int <= 8
-    - jdk.oracle.install == true
+    - _jdk.oracle.install == true
 
 
 - name: "Delete a Line to Export $JAVA_HOME"

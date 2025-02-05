@@ -60,31 +60,38 @@ ANSIBLE_TARGET_PASS="changeme"  # It should be changed with password of sudo use
 
 #### 3) Configure hostname / ip addresses / username into inventory file to run ansible playbook
 ```
-$ vi ansible-hosts
+$ vi ansible-hosts-rk9
 [all:vars]
 ssh_key_filename="id_rsa"
 remote_machine_username="jomoon"
 remote_machine_password="changeme"
 
+
 [monitor]
-rk8-node01 ansible_ssh_host=192.168.0.71
+rk9-node01 ansible_ssh_host=192.168.2.191
+
+
+[standby]
+rk9-node02 ansible_ssh_host=192.168.2.192
+
 
 # These are your kafka cluster nodes
 [kafka_brokers]
-rk9-node03 kafka_broker_id=1 ansible_ssh_host=192.168.0.73
-rk9-node04 kafka_broker_id=2 ansible_ssh_host=192.168.0.74
-rk9-node05 kafka_broker_id=3 ansible_ssh_host=192.168.0.75
+rk9-node03 kafka_broker_id=1 ansible_ssh_host=192.168.2.193
+rk9-node04 kafka_broker_id=2 ansible_ssh_host=192.168.2.194
+rk9-node05 kafka_broker_id=3 ansible_ssh_host=192.168.2.195
+
 
 # These are your zookeeper cluster nodes
 [zk_servers]
-rk9-node03 zk_id=1 ansible_ssh_host=192.168.0.73
-rk9-node04 zk_id=2 ansible_ssh_host=192.168.0.74
-rk9-node05 zk_id=3 ansible_ssh_host=192.168.0.75
+rk9-node03 zk_id=1 ansible_ssh_host=192.168.2.193
+rk9-node04 zk_id=2 ansible_ssh_host=192.168.2.194
+rk9-node05 zk_id=3 ansible_ssh_host=192.168.2.195
 ```
 
 #### 4) Initialization Linux Host to install packages required and generate/exchange ssh keys between all hosts.
 ```
-$ vi roles/init-hosts/vars/main.yml
+$ vi roles/hosts/vars/main.yml
 ansible_ssh_pass: "changeme"
 ansible_become_pass: "changeme"
 
@@ -98,14 +105,17 @@ sudo_user_pass: "changeme"
 sudo_user_home_dir: "/home/{{ sudo_user }}"
 domain_name: "jtest.pivotal.io"
 
-make init
+$ make hosts r=init
+$ make hosts r=uninit
 ```
 
 #### 5) Configure variables for kafka version and location which will be installed as well as other parameters
 ```
 $ vi group_vars/all.yml
 ~~ snip
-kafka:
+_kafka:
+  user: kafka
+  group: kafka
   major_version: 3
   minor_version: 6
   patch_version: 2
@@ -113,9 +123,9 @@ kafka:
     major_version: 2
     minor_version: 12
   base_path: /usr/local
+  download: false
   download_url: http://apache.rediris.es/kafka
   download_path: /tmp
-  download: false
   config:
     port: 9092
     log_dirs: /usr/local/kafka/logs
@@ -140,9 +150,13 @@ kafka:
   net:
     type: "virtual"                # Or Physical
     gateway: "192.168.0.1"
-    ipaddr0: "192.168.0.7"
-    ipaddr1: "192.168.1.7"
-    ipaddr2: "192.168.2.7"
+    ipaddr0: "192.168.0.19"
+    ipaddr1: "192.168.1.19"
+    ipaddr2: "192.168.2.19"
+  vms:
+    rk9: [ "rk9-freeipa", "rk9-node01", "rk9-node02", "rk9-node03", "rk9-node04", "rk9-node05" ]
+    ubt24: [ "rk9-freeipa", "ubt24-node01", "ubt24-node02", "ubt24-node03", "ubt24-node04", "ubt24-node05" ]
+  debug_opt: ""  # --debug
 ~~ snip
 ```
 
@@ -150,14 +164,16 @@ kafka:
 ```
 $ vi group_vars/all.yml
 ~~ snip
-zookeeper:
+_zookeeper:
+  user: zookeeper
+  group: zookeeper
   major_version: 3
   minor_version: 9
-  patch_version: 2
+  patch_version: 3
   base_path: /usr/local
+  download: false
   download_url: http://apache.rediris.es/zookeeper
   download_path: /tmp
-  download: false
   config:
     port: 2181
     log_path: /usr/local/apache-zookeeper/log
@@ -171,9 +187,9 @@ zookeeper:
   net:
     type: "virtual"                # Or Physical
     gateway: "192.168.0.1"
-    ipaddr0: "192.168.0.7"
-    ipaddr1: "192.168.1.7"
-    ipaddr2: "192.168.2.7"
+    ipaddr0: "192.168.0.19"
+    ipaddr1: "192.168.1.19"
+    ipaddr2: "192.168.2.19"
 ~~ snip
 ```
 
@@ -181,7 +197,7 @@ zookeeper:
 ```
 $ vi group_vars/all.yml
 ~~ snip
-jdk:
+_jdk:
   oss:
     install: true
     jvm_home: "/usr/lib/jvm"
@@ -201,11 +217,15 @@ jdk:
 ```
 $ vi group_vars/all.yml
 ~~ snip
-kafka_ui:
+_kafka_ui:
+  base_path: "/root"
   api_version: "0.7.2"
   jmx_port: 9997
   port: 8080
   oracle_java: false
+  download: false
+  download_url: "https://github.com/provectus/kafka-ui/releases/download"
+  download_path: "/root"
 ~~ snip
 ```
 
@@ -215,54 +235,21 @@ $ make download
 ```
 
 ## How to Deploy Kafaka-ZKCluster
-#### Configure ansible playbook to deploy Kafka-ZKCluster and UI
 ```
-$ vi install-kafka.yml
-- hosts: all
-  become: true
-  roles:
-    - firewall
-    - java
-
-- hosts: kafka_brokers
-  become: true
-  roles:
-    - zookeeper
-    - kafka
-
-- hosts: monitor
-  become: true
-  roles:
-    - kafka-ui
-
-$ make install
+$ make firewall   s=enable
+$ make java       s=setup
+$ make zookeeper  s=install
+$ make kafka      s=install
+$ make kafka-ui   s=install
 ```
 
 ## How to Destroy Kafaka-ZKCluster
-#### Configure ansible playbook to destroy Kafka-ZKCluster and Kafka UI
 ```
-$ vi uninstall-kafka.yml
----
-- hosts: kafka_brokers
-  become: true
-  roles:
-    - kafka
-    - zookeeper
-
-- hosts: monitor
-  become: true
-  roles:
-    - kafka-ui
-
-- hosts: all
-  become: true
-  roles:
-    - java
-    - firewall
-
-$ make uninstall
-
-$ make uninit
+$ make kafka-ui   s=uninstall
+$ make kafka      s=uninstall
+$ make zookeeper  s=uninstall
+$ make java       s=remove
+$ make firewall   s=disable
 ```
 
 ## Reference
@@ -376,3 +363,16 @@ $ less <Kafka Home Dir>/logs/connect.log
 - Configuring Auth for Kafka UI ( Check if configuration SSL is possible? )
 - Configuring Scheme Segistry and Ssql DB for Kafka UI
 - Testing Confluent Platform Recent Version 7.3
+
+
+
+## New Makefile
+~~~yaml
+$ make hosts r=init
+$ make firewall r=enable
+$ make java r=setup
+$ make zookeeper r=setup
+$ make kafka r=setup
+$ make kafka-ui r=setup
+~~~
+

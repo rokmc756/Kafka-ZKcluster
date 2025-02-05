@@ -1,33 +1,42 @@
+---
 - name: Check Kafka Package
-  stat: path={{ kafka_ui.base_path }}/kafka-ui-api-v{{ kafka_ui.api_version }}.jar
-  register: kafka_ui_exists
-- debug: msg={{ kafka_ui_exists }}
+  stat: path={{ _kafka_ui.base_path }}/kafka-ui-api-v{{ _kafka_ui.api_version }}.jar
+  register: check_kafka_ui
 
 
 - name: Download Kafka UI File if Not Downloaded
-  get_url: url={{ kafka_ui.download_url }}/v{{ kafka_ui_api_version }}/{{ kafka_ui_filename }} dest={{ kafka_ui.download_path }}
+  get_url: url={{ _kafka_ui.download_url }}/v{{ kafka_ui_api_version }}/{{ kafka_ui_filename }} dest={{ _kafka_ui.download_path }}
   register: download_kafka_ui
-  when: kafka_ui_exists.stat.exists == false and kafka_ui.download == true
-- debug:
-    msg: "{{ download_kafka_ui }}"
+  when: check_kafka_ui.stat.exists == false and _kafka_ui.download == true
 
 
-# copy: src=kafka-ui-api-v{{ kafka_ui.api_version }}.jar dest=/root/kafka-ui-api-v{{ kafka_ui.api_version }}.jar mode=0644 owner=root group=root
 - name: Copy API JAR file of Kafka UI
-  copy: src={{ kafka_ui_filename }} dest={{ kafka_ui.base_path }}/{{ kafka_ui_filename }} mode=0644 owner=root group=root
-  when: kafka_ui_exists.stat.exists == false and kafka_ui.download == false
+  copy: src={{ kafka_ui_filename }} dest={{ _kafka_ui.base_path }}/{{ kafka_ui_filename }} mode=0644 owner=root group=root
+  register: copy_kafka_ui_api_jar
+  when: check_kafka_ui.stat.exists == false and _kafka_ui.download == false
 
 
 - name: Set Kafka UI Configuration
   template: src=templates/application-kafka-ui.yml dest=/root/application-kafka-ui.yml owner=root group=root mode=644 force=yes
+  register: set_kafka_ui_config
 
 
 - name: Copy Systemd File of Kafka UI
   template: src=kafka-ui.systemd.j2 dest=/etc/systemd/system/kafka-ui.service owner=root group=root mode=644 force=yes
 
 
+- name: Enable Firewalld Port Policy for Kafak UI
+  firewalld:
+    port: "{{ item }}/tcp"
+    permanent: true
+    state: enabled
+    immediate: yes
+  ignore_errors: yes
+  with_items:
+    - "{{ _kafka_ui.port }}"
+
+
 - name: Reload and Start Kafka UI Systemd Service
-  become_user: root
   systemd:
     daemon_reload: yes
     name: kafka-ui

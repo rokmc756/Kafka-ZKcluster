@@ -4,9 +4,8 @@
     name: kafka-ui
     enabled: no
     state: stopped
-  register: kafka_ui_systemd_stopped
+  register: stop_kafka_ui_service
   ignore_errors: yes
-  when: inventory_hostname in groups['monitor']
 
 
 - name: Remove Config and Jar Files of Kafka UI
@@ -17,9 +16,8 @@
   with_items:
     - "/var/log/kafka-ui.log"
     - "/root/application-kafka-ui.yml"
-    - "/root/kafka-ui-api-v{{ kafka_ui.api_version }}.jar"
+    - "/root/kafka-ui-api-v{{ _kafka_ui.api_version }}.jar"
     - "/etc/systemd/system/kafka-ui.service"
-  when: inventory_hostname in groups['monitor']
 
 
 - name: Disable Firewalld Port Policy for Kafak UI
@@ -30,8 +28,7 @@
     immediate: yes
   ignore_errors: yes
   with_items:
-    - "{{ kafka_ui.port }}"
-  when: inventory_hostname in groups['monitor']
+    - "{{ _kafka_ui.port }}"
 
 
 - name: Reload Systemd Services
@@ -39,5 +36,4 @@
     daemon_reload: yes
   register: systemd_reloaded
   ignore_errors: yes
-  when: inventory_hostname in groups['monitor']
 

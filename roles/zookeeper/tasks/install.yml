@@ -7,26 +7,26 @@
 
 
 - name: Check Zookeeper Package
-  stat: path={{ zookeeper.download_path }}/{{ zk_package_name }}
+  stat: path={{ _zookeeper.download_path }}/{{ zk_package_name }}
   register: zk_package_exists
 
 
 - name: Download Zookeeper Tar file if Not Downloaded
-  get_url: url={{ zookeeper.download_url }}/zookeeper-{{ zookeeper_version }}/{{ zk_package_name }} dest={{ zookeeper.download_path }}
+  get_url: url={{ _zookeeper.download_url }}/zookeeper-{{ zookeeper_version }}/{{ zk_package_name }} dest={{ _zookeeper.download_path }}
   when: not zk_package_exists.stat.exists
 
 
 - name: Unarchive Zookeeper Package
-  unarchive: src={{ zookeeper.download_path }}/{{ zk_package_name }} dest={{ zookeeper.base_path }} copy=no
+  unarchive: src={{ _zookeeper.download_path }}/{{ zk_package_name }} dest={{ _zookeeper.base_path }} copy=no
 
 
 - name: Delete Package Downloaded if Needed
-  file: path={{ zookeeper.download_path }}/{{ zk_package_name }} state=absent
+  file: path={{ _zookeeper.download_path }}/{{ zk_package_name }} state=absent
   when: force_cleanup is defined and force_cleanup == "True"
 
 
 - name: Check if Any Version of Zookeeper is Already Linked
-  stat: path={{ zookeeper.base_path }}/apache-zookeeper
+  stat: path={{ _zookeeper.base_path }}/apache-zookeeper
   register: zk_symlink_created
 - debug: msg={{ zk_symlink_created }}
 
@@ -34,18 +34,18 @@
 - name: Repoint Symlink to New Zookeeper Version
   become_user: root
   file:
-    dest: "{{ zookeeper.base_path }}/apache-zookeeper"
-    src: "{{ zookeeper.base_path }}/apache-zookeeper-{{ zookeeper_version }}-bin"
+    dest: "{{ _zookeeper.base_path }}/apache-zookeeper"
+    src: "{{ _zookeeper.base_path }}/apache-zookeeper-{{ zookeeper_version }}-bin"
     state: link
   when: not zk_symlink_created.stat.exists
 
 
 - name: Set Zookeeper Data Directory
-  file: path={{ zookeeper.config.data_dir }} state=directory owner=zookeeper group=zookeeper
+  file: path={{ _zookeeper.config.data_dir }} state=directory owner=zookeeper group=zookeeper
 
 
 - name: Set Zookeeper Log Directory
-  file: path={{ zookeeper.config.log_path }} state=directory owner=zookeeper group=zookeeper
+  file: path={{ _zookeeper.config.log_path }} state=directory owner=zookeeper group=zookeeper
 
 
 - name: Set Zookeeper Configuration
@@ -54,11 +54,11 @@
 
 
 - name: Set Zookeeper Data Directory
-  file: path={{ zookeeper.config.data_dir }} state=directory owner=zookeeper group=zookeeper
+  file: path={{ _zookeeper.config.data_dir }} state=directory owner=zookeeper group=zookeeper
 
 
 - name: Set Zookeeper myid Configuration
-  template: src=templates/zookeeper.myid.j2 dest={{ zookeeper.config.data_dir }}/myid force=yes
+  template: src=templates/zookeeper.myid.j2 dest={{ _zookeeper.config.data_dir }}/myid force=yes
   notify: Restart Zookeeper
 
 
@@ -76,6 +76,6 @@
     path: "{{ item }}"
     line: "export PATH={{ zk_application_path }}/bin:{{ zk_application_path }}/sbin:$PATH"
   with_items:
-    - "/home/{{ zookeeper.user }}/.bashrc"
+    - "/home/{{ _zookeeper.user }}/.bashrc"
     - "/root/.bashrc"
 
