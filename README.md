@@ -229,7 +229,40 @@ _kafka_ui:
 ~~ snip
 ```
 
-#### 9) Download All Software Binary and Save it to the role/XXXX/files Directory
+
+#### 9) Configure Makefile to Install and Configure Zookeeper/Kafka/Kafka UI Conviniently
+```
+$ vi Makefile
+~~ snip
+download:
+        @ansible-playbook --ssh-common-args='-o UserKnownHostsFile=./known_hosts' -u ${USERNAME} download-kafka.yml --tags="download"
+
+
+# For All Roles
+%:
+        @ln -sf ansible-hosts-rk9 ansible-hosts;
+        @cat Makefile.tmp  | sed -e 's/temp/${*}/g' > Makefile.${*}
+
+        @if [ "${*}" = "" ] || [ "${*}" = "firewall" || [ "${*}" = "hosts" ] ; then\
+                cat setup-temp.yml.tmp | sed -e 's/    - temp/    - ${*}/g' > setup-${*}.yml;\
+        elif [ "${*}" = "zookeeper" ]; then\
+                cat setup-kafka-temp.yml.tmp | sed -e 's/    - temp/    - ${*}/g' > setup-${*}.yml;\
+        elif [ "${*}" = "kafka" ]; then\
+                cat setup-kafka-temp.yml.tmp | sed -e 's/    - temp/    - ${*}/g' > setup-${*}.yml;\
+        elif [ "${*}" = "kafka-ui" ]; then\
+                cat setup-kafka-ui-temp.yml.tmp | sed -e 's/    - temp/    - ${*}/g' > setup-${*}.yml;\
+        else\
+                echo "No actions to temp";\
+                exit;\
+        fi
+
+        @make -f Makefile.${*} r=${r} s=${s} c=${c} USERNAME=${USERNAME}
+        @rm -f setup-${*}.yml Makefile.${*}
+~~ snip
+```
+
+
+#### 10) Download All Software Binary and Save it to the role/XXXX/files Directory
 ```
 $ make download
 ```
