@@ -230,7 +230,7 @@ _kafka_ui:
 ```
 
 
-#### 9) Configure Makefile to Install and Configure Zookeeper/Kafka/Kafka UI Conviniently
+#### 9) Configure Makefile to Install and Configure Zookeeper/Kafka/Kafka UI Conveniently by Make Command
 ```
 $ vi Makefile
 ~~ snip
