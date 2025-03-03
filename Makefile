@@ -37,7 +37,7 @@ download:
 	@ln -sf ansible-hosts-rk9 ansible-hosts;
 	@cat Makefile.tmp  | sed -e 's/temp/${*}/g' > Makefile.${*}
 	
-	@if [ "${*}" = "" ] || [ "${*}" = "firewall" || [ "${*}" = "hosts" ] ; then\
+	@if [ "${*}" = "java" ] || [ "${*}" = "firewall" ] || [ "${*}" = "hosts" ] ; then\
 		cat setup-temp.yml.tmp | sed -e 's/    - temp/    - ${*}/g' > setup-${*}.yml;\
 	elif [ "${*}" = "zookeeper" ]; then\
 		cat setup-kafka-temp.yml.tmp | sed -e 's/    - temp/    - ${*}/g' > setup-${*}.yml;\
