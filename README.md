@@ -269,20 +269,20 @@ $ make download
 
 ## How to Deploy Kafaka-ZKCluster
 ```
-$ make firewall   s=enable
-$ make java       s=setup
-$ make zookeeper  s=install
-$ make kafka      s=install
-$ make kafka-ui   s=install
+$ make firewall   r=enable
+$ make java       r=setup
+$ make zookeeper  r=install
+$ make kafka      r=install
+$ make kafka-ui   r=install
 ```
 
 ## How to Destroy Kafaka-ZKCluster
 ```
-$ make kafka-ui   s=uninstall
-$ make kafka      s=uninstall
-$ make zookeeper  s=uninstall
-$ make java       s=remove
-$ make firewall   s=disable
+$ make kafka-ui   r=uninstall
+$ make kafka      r=uninstall
+$ make zookeeper  r=uninstall
+$ make java       r=remove
+$ make firewall   r=disable
 ```
 
 ## Reference
