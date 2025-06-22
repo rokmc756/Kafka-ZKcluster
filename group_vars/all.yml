@@ -4,8 +4,8 @@ ansible_become_pass: "changeme"
 _kafka:
   user: kafka
   group: kafka
-  major_version: 3
-  minor_version: 9
+  major_version: 4
+  minor_version: 0
   patch_version: 0
   scala:
     major_version: 2

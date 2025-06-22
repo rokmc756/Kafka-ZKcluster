@@ -3,32 +3,17 @@
   set_fact:
     netdev0: "{{ ansible_interfaces | map('regex_replace', '^', 'ansible_') | map('extract', vars) | selectattr('ipv4', 'defined') | selectattr('ipv4.address', 'match', _kafka.net.ipaddr0 ) | map(attribute='device') | first }}"
     netdev2: "{{ ansible_interfaces | map('regex_replace', '^', 'ansible_') | map('extract', vars) | selectattr('ipv4', 'defined') | selectattr('ipv4.address', 'match', _kafka.net.ipaddr2 ) | map(attribute='device') | first }}"
-  delegate_to: "{{ item }}"
-  delegate_facts: true
-  with_items: "{{ groups['all'] }}"
-  # netdev1: "{{ ansible_interfaces | map('regex_replace', '^', 'ansible_') | map('extract', vars) | selectattr('ipv4', 'defined') | selectattr('ipv4.address', 'match', _kafka.net.ipaddr1 ) | map(attribute='device') | first }}"
-
 
 - name: Get IP Address from Network Device Name
   set_fact:
     ipaddr0: "{{ hostvars[inventory_hostname]['ansible_'~netdev0].ipv4.address }}"
     ipaddr2: "{{ hostvars[inventory_hostname]['ansible_'~netdev2].ipv4.address }}"
-  delegate_to: "{{ item }}"
-  delegate_facts: true
-  with_items: "{{ groups['all'] }}"
-  # ipaddr1: "{{ hostvars[inventory_hostname]['ansible_'~netdev1].ipv4.address }}"
-
 
 - name: Define Fact for Kafka/Zookeeper Version
   set_fact:
     scala_version: "{{ _kafka.scala.major_version}}.{{ _kafka.scala.minor_version }}"
     kafka_version: "{{ _kafka.major_version }}.{{ _kafka.minor_version }}.{{ _kafka.patch_version }}"
     zookeeper_version: "{{ _zookeeper.major_version }}.{{ _zookeeper.minor_version }}.{{ _zookeeper.patch_version }}"
-  delegate_to: "{{ item }}"
-  delegate_facts: true
-  with_items: "{{ groups['all'] }}"
-
-
 
 - name: Set Kafka/Zookeeper Package Name and Application Path
   set_fact:
@@ -38,17 +23,14 @@
     kafka_application_path: "{{ _kafka.base_path }}/kafka_{{ scala_version }}-{{ kafka_version }}"
     zk_package_name: apache-zookeeper-{{ zookeeper_version }}-bin.tar.gz
     zk_application_path: "{{ _zookeeper.base_path }}/apache-zookeeper-{{ zookeeper_version }}-bin"
-  delegate_to: "{{ item }}"
-  delegate_facts: true
-  with_items: "{{ groups['all'] }}"
-
-
 
 - name: Set Default Network Device and Address
   set_fact:
     _netdev: "{{ netdev2 }}"
     _ipaddr: "{{ ipaddr2 }}"
-  delegate_to: "{{ item }}"
-  delegate_facts: true
-  with_items: "{{ groups['all'] }}"
+
+#- name: Set Host List for Plaintext and Controller Hosts
+#  set_fact:
+#    plaintext_hosts:  '{{ groups['kafka_brokers'] | map('extract', hostvars, [ _netdev, 'ipv4', 'address']) | map('regex_replace', '$', ':9092') | join(',') }}'
+#    controller_hosts: '{{ groups['kafka_brokers'] | map('extract', hostvars, [ _netdev, 'ipv4', 'address']) | map('regex_replace', '$', ':9093') | join(',') }}'
 

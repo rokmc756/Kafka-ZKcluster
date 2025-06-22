@@ -61,7 +61,7 @@
 
 
 - name: Set Kafka Configuration
-  template: src=templates/kafka.config.j2 dest={{ kafka_application_path }}/config/server.properties force=yes
+  template: src=templates/kafka-{{ _kafka.major_version }}x.config.j2 dest={{ kafka_application_path }}/config/server.properties force=yes
 
 
 - name: Copy Systemd Configuration of Kafka into /etc/systemd/system
