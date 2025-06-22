@@ -60,8 +60,15 @@
   with_items: "{{ _kafka.config.topic_dirs }}"
 
 
+#- name: Set Kafka Configuration
+#  template: src=templates/kafka-{{ _kafka.major_version }}x.config.j2 dest={{ kafka_application_path }}/config/server.properties force=yes
+
+
 - name: Set Kafka Configuration
-  template: src=templates/kafka-{{ _kafka.major_version }}x.config.j2 dest={{ kafka_application_path }}/config/server.properties force=yes
+  template: src=templates/{{ item }}-{{ _kafka.major_version }}x.properties.j2 dest={{ kafka_application_path }}/config/{{ item }}.properties force=yes
+  with_items:
+    - server
+    - controller
 
 
 - name: Copy Systemd Configuration of Kafka into /etc/systemd/system

@@ -395,4 +395,6 @@ $ less <Kafka Home Dir>/logs/connect.log
 - [X] Adding Playbook to Install and Confgiure Kafka / Zookeeper Monitor
 - [] Configuring Auth for Kafka UI and Check if Configuring SSL is Possible
 - [] Configuring Scheme Segistry and Ssql DB for Kafka UI
+- [] Working Kafka 4.0 without Zookeeper : https://www.redpanda.com/guides/kafka-tutorial-kafka-without-zookeeper
+- [] Kafka 4.0 Standalone is OK : https://kafka.apache.org/quickstart
 

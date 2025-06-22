@@ -18,7 +18,15 @@ Environment=JMX_PORT=9997
 # Environmet="KAFKA_HEAP_OPTS=-Xmx1G -Xms1G"
 # Environment="KAFKA_OPTS=-javaagent:/home/ubuntu/prometheus/jmx_prometheus_javaagent-0.15.0.jar=8080:/home/ubuntu/prometheus/kafka-connect.yml"
 
+{% if _kafka.major_version == 4 %}
+ExecStart=/bin/bash -c "
+ KAFKA_CLUSTER_ID=$({{ kafka_application_path }}/bin/kafka-storage.sh random-uuid)
+{{ kafka_application_path }}/bin/kafka-storage.sh format -t $KAFKA_CLUSTER_ID -c {{ kafka_application_path }}/config/server.properties
+{{ kafka_application_path }}/bin/kafka-server-start.sh {{ kafka_application_path }}/config/server.properties
+{% else %}
 ExecStart=/bin/bash -c "{{ kafka_application_path }}/bin/kafka-server-start.sh -daemon {{ kafka_application_path }}/config/server.properties"
+{% endif %}
+
 ExecStop=/bin/bash -c "{{ kafka_application_path }}/bin/kafka-server-stop.sh"
 # ExecStartPost=
 # ExecStartPre=
